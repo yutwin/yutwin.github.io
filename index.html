@@ -161,34 +161,130 @@
             object-position: center top;
         }
         
-        .profile-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .stat {
+        .diamond-count {
             background-color: #f5f5f5;
-            padding: 15px;
+            padding: 20px;
             border-radius: 10px;
-            min-width: 80px;
-            width: calc(50% - 20px);
-            margin: 10px;
-            flex-grow: 1;
+            margin: 20px auto 0;
+            max-width: 220px;
         }
-        
-        .stat-name {
+
+        .diamond-count-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #6e8efb;
+        }
+
+        .diamond-count-label {
             font-weight: bold;
             color: #555;
-        }
-        
-        .stat-value {
-            font-size: 20px;
-            color: #6e8efb;
             margin-top: 5px;
         }
-        
+
+        .mom-mode-corner {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .mom-mode-btn {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #555;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            width: auto;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+        }
+
+        .mom-mode-btn:hover {
+            background-color: white;
+        }
+
+        .mom-mode-btn.active {
+            background-color: #6e8efb;
+            color: white;
+            border-color: #6e8efb;
+        }
+
+        .mom-mode-login {
+            display: none;
+            gap: 6px;
+            align-items: center;
+            background-color: white;
+            border-radius: 5px;
+            padding: 6px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .mom-mode-login input {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 120px;
+            -webkit-appearance: none;
+        }
+
+        .mom-mode-login button {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .mom-balance-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mom-balance-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .mom-balance-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .mom-balance-controls input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            -webkit-appearance: none;
+        }
+
+        .mom-balance-controls button {
+            width: auto;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .mom-save-status {
+            font-size: 13px;
+            min-height: 18px;
+            margin: -5px 0 15px;
+        }
+
         .profile-actions {
             margin-top: 25px;
         }
@@ -212,12 +308,6 @@
                 height: 150px;
                 margin-bottom: 20px;
             }
-            
-            .stat {
-                width: calc(50% - 20px);
-                min-width: 0;
-                padding: 10px;
-            }
         }
         
         .character-image img, .profile-image img {
@@ -226,6 +316,14 @@
     </style>
 </head>
 <body>
+    <div class="mom-mode-corner" id="mom-mode-corner">
+        <div class="mom-mode-login" id="mom-mode-login">
+            <input type="password" id="mom-mode-password" placeholder="Mom password">
+            <button type="button" id="mom-mode-login-btn">Login</button>
+        </div>
+        <button type="button" class="mom-mode-btn" id="mom-mode-toggle">Mom Mode</button>
+    </div>
+
     <div class="container">
         <!-- Character Selection Section (First Screen) -->
         <div class="section character-selection" id="character-selection">
@@ -260,23 +358,9 @@
                 that connects seemingly unrelated concepts, she excels at finding innovative solutions to complex problems. 
                 Her natural curiosity drives her to explore new ideas and perspectives.
             </div>
-            <div class="profile-stats">
-                <div class="stat">
-                    <div class="stat-name">Creativity</div>
-                    <div class="stat-value">95</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-name">Intuition</div>
-                    <div class="stat-value">85</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-name">Adaptability</div>
-                    <div class="stat-value">80</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-name">Persistence</div>
-                    <div class="stat-value">75</div>
-                </div>
+            <div class="diamond-count">
+                <div class="diamond-count-value" id="diamonds-elle">0</div>
+                <div class="diamond-count-label">Diamonds</div>
             </div>
             <div class="profile-actions">
                 <button onclick="window.location.href='spelling-bee.html'">Spelling Bee Practice</button>
@@ -295,27 +379,37 @@
                 ability to process complex information and identify patterns that others miss. His dedication to knowledge 
                 and understanding makes him an excellent problem-solver and strategist.
             </div>
-            <div class="profile-stats">
-                <div class="stat">
-                    <div class="stat-name">Logic</div>
-                    <div class="stat-value">90</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-name">Knowledge</div>
-                    <div class="stat-value">85</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-name">Strategy</div>
-                    <div class="stat-value">88</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-name">Focus</div>
-                    <div class="stat-value">82</div>
-                </div>
+            <div class="diamond-count">
+                <div class="diamond-count-value" id="diamonds-sebastian">0</div>
+                <div class="diamond-count-label">Diamonds</div>
             </div>
             <div class="profile-actions">
                 <button onclick="window.location.href='pokemon.html'">View Pokémon Collection</button>
                 <button class="back-button" id="logout-btn-mage">Back to Character Selection</button>
+            </div>
+        </div>
+
+        <!-- Mom Mode - edit each kid's diamond balance -->
+        <div class="section mom-panel" id="mom-panel" style="display: none;">
+            <h1>Mom Mode</h1>
+            <div class="profile-desc">Edit each kid's diamond balance below.</div>
+            <div class="mom-balance-row">
+                <div class="mom-balance-name">Elle</div>
+                <div class="mom-balance-controls">
+                    <input type="number" id="mom-balance-elle" min="0" step="1">
+                    <button type="button" class="mom-save-btn" data-character="elle">Save</button>
+                </div>
+            </div>
+            <div class="mom-balance-row">
+                <div class="mom-balance-name">Sebastian</div>
+                <div class="mom-balance-controls">
+                    <input type="number" id="mom-balance-sebastian" min="0" step="1">
+                    <button type="button" class="mom-save-btn" data-character="sebastian">Save</button>
+                </div>
+            </div>
+            <div class="mom-save-status" id="mom-save-status"></div>
+            <div class="profile-actions">
+                <button class="back-button" id="mom-panel-close">Back to Character Selection</button>
             </div>
         </div>
     </div>
@@ -351,6 +445,147 @@
             mageProfile.style.display = 'none';
             characterSelection.style.display = 'block';
         });
+
+        // ---- Mom Mode ----
+        // Client-side only, same deterrent-not-security-boundary spirit as Dad's Store's admin mode -
+        // change this if you'd like a different password.
+        const MOM_MODE_PASSWORD = 'Gingerale210!';
+        const momModeToggle = document.getElementById('mom-mode-toggle');
+        const momModeLogin = document.getElementById('mom-mode-login');
+        const momModePasswordInput = document.getElementById('mom-mode-password');
+        const momModeLoginBtn = document.getElementById('mom-mode-login-btn');
+        const momPanel = document.getElementById('mom-panel');
+        const momPanelClose = document.getElementById('mom-panel-close');
+        const momSaveStatus = document.getElementById('mom-save-status');
+
+        let momModeActive = false;
+        let preMomView = 'selection'; // which section to restore once Mom Mode closes
+
+        function showMomPanel() {
+            preMomView = characterSelection.style.display !== 'none' ? 'selection'
+                : warriorProfile.style.display !== 'none' ? 'elle'
+                : mageProfile.style.display !== 'none' ? 'sebastian'
+                : 'selection';
+            characterSelection.style.display = 'none';
+            warriorProfile.style.display = 'none';
+            mageProfile.style.display = 'none';
+            momPanel.style.display = 'block';
+        }
+
+        function hideMomPanel() {
+            momPanel.style.display = 'none';
+            if (preMomView === 'elle') warriorProfile.style.display = 'block';
+            else if (preMomView === 'sebastian') mageProfile.style.display = 'block';
+            else characterSelection.style.display = 'block';
+        }
+
+        function exitMomMode() {
+            momModeActive = false;
+            momModeToggle.textContent = 'Mom Mode';
+            momModeToggle.classList.remove('active');
+            momModeToggle.style.display = '';
+            momModeLogin.style.display = 'none';
+            hideMomPanel();
+        }
+
+        function attemptMomLogin() {
+            const value = momModePasswordInput.value;
+            momModePasswordInput.value = '';
+            if (value === MOM_MODE_PASSWORD) {
+                momModeActive = true;
+                momModeLogin.style.display = 'none';
+                momModeToggle.style.display = '';
+                momModeToggle.textContent = 'Exit Mom Mode';
+                momModeToggle.classList.add('active');
+                showMomPanel();
+            } else {
+                momModePasswordInput.placeholder = 'Incorrect password';
+                momModePasswordInput.focus();
+                setTimeout(() => { momModePasswordInput.placeholder = 'Mom password'; }, 2000);
+            }
+        }
+
+        momModeToggle.addEventListener('click', () => {
+            if (momModeActive) {
+                exitMomMode();
+                return;
+            }
+            momModeLogin.style.display = 'flex';
+            momModeToggle.style.display = 'none';
+            momModePasswordInput.focus();
+        });
+
+        momModeLoginBtn.addEventListener('click', attemptMomLogin);
+        momModePasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                attemptMomLogin();
+            }
+        });
+
+        momPanelClose.addEventListener('click', exitMomMode);
+
+        document.querySelectorAll('.mom-save-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const characterId = btn.getAttribute('data-character');
+                const input = document.getElementById(`mom-balance-${characterId}`);
+                const count = parseInt(input.value, 10);
+                const displayName = characterId === 'elle' ? 'Elle' : 'Sebastian';
+                if (!Number.isFinite(count) || count < 0) {
+                    momSaveStatus.textContent = 'Enter a diamond count of 0 or more.';
+                    momSaveStatus.style.color = '#c0392b';
+                    return;
+                }
+                window.momModeDb.setDiamondCount(characterId, count).then(() => {
+                    momSaveStatus.textContent = `Saved ${displayName}'s balance.`;
+                    momSaveStatus.style.color = '#2e7d32';
+                }).catch(() => {
+                    momSaveStatus.textContent = "Couldn't save - check your connection and try again.";
+                    momSaveStatus.style.color = '#c0392b';
+                });
+            });
+        });
+    </script>
+
+    <script type="module">
+        // Same Firestore project pokemon.html uses (project "sebastian-pokemon"), just a different
+        // collection - each character's diamond balance lives at diamondBalances/{elle|sebastian}.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDI2oLf0V65GCgrKV_-lHkHPS7BgqlSEos",
+            authDomain: "sebastian-pokemon.firebaseapp.com",
+            projectId: "sebastian-pokemon",
+            storageBucket: "sebastian-pokemon.firebasestorage.app",
+            messagingSenderId: "938261668086",
+            appId: "1:938261668086:web:6e31ca7d53a8f79da38cd7"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
+
+        // Keeps the read-only display box AND the Mom Mode edit input in sync live - skips
+        // overwriting the input while it's focused, so an incoming snapshot can't clobber what's
+        // being typed mid-edit.
+        function watchDiamondBalance(characterId, displayElId, inputElId) {
+            const displayEl = document.getElementById(displayElId);
+            const inputEl = document.getElementById(inputElId);
+            onSnapshot(doc(db, 'diamondBalances', characterId), (snapshot) => {
+                const count = snapshot.exists() ? (snapshot.data().count || 0) : 0;
+                displayEl.textContent = count;
+                if (document.activeElement !== inputEl) inputEl.value = count;
+            }, () => {
+                displayEl.textContent = '—';
+            });
+        }
+
+        watchDiamondBalance('elle', 'diamonds-elle', 'mom-balance-elle');
+        watchDiamondBalance('sebastian', 'diamonds-sebastian', 'mom-balance-sebastian');
+
+        window.momModeDb = {
+            setDiamondCount: (characterId, count) => setDoc(doc(db, 'diamondBalances', characterId), { count }, { merge: true })
+        };
     </script>
 </body>
 </html>
