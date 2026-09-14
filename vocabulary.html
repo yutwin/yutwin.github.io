@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Board</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Kalam:wght@400;700&family=Space+Mono:wght@400;700&display=swap">
+    <style>
+      :root {
+        --bg: #eef1ec;
+        --surface: #ffffff;
+        --surface-2: #f6f7f3;
+        --ink: #1f2e2a;
+        --ink-soft: #5c6b64;
+        --border: #d9ddd2;
+        --accent: #1c6fd6;
+        --accent-ink: #ffffff;
+        --good: #1f9d63;
+        --good-soft: #e3f5eb;
+        --bad: #c9432f;
+        --bad-soft: #fbe7e2;
+        --highlight: #b9800f;
+        --highlight-soft: #faedd2;
+        --shadow: rgba(31, 46, 42, 0.12);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #14251f;
+          --surface: #1d332a;
+          --surface-2: #243c31;
+          --ink: #eef3ea;
+          --ink-soft: #aac0b3;
+          --border: #3a5548;
+          --accent: #7ec8f2;
+          --accent-ink: #0c2033;
+          --good: #7fd9a8;
+          --good-soft: #1f4536;
+          --bad: #f2988a;
+          --bad-soft: #4a2620;
+          --highlight: #f0c15a;
+          --highlight-soft: #4a3a17;
+          --shadow: rgba(0, 0, 0, 0.4);
+        }
+      }
+
+      :root[data-theme="dark"] {
+        --bg: #14251f;
+        --surface: #1d332a;
+        --surface-2: #243c31;
+        --ink: #eef3ea;
+        --ink-soft: #aac0b3;
+        --border: #3a5548;
+        --accent: #7ec8f2;
+        --accent-ink: #0c2033;
+        --good: #7fd9a8;
+        --good-soft: #1f4536;
+        --bad: #f2988a;
+        --bad-soft: #4a2620;
+        --highlight: #f0c15a;
+        --highlight-soft: #4a3a17;
+        --shadow: rgba(0, 0, 0, 0.4);
+      }
+
+      * , *::before, *::after { box-sizing: border-box; }
+      [hidden] { display: none !important; }
+
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+        margin: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { transition: none !important; animation: none !important; }
+      }
+
+      .app {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 24px 20px 64px;
+      }
+
+      .eyebrow {
+        font-family: "Space Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        display: block;
+      }
+
+      /* ---------- top bar ---------- */
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding-bottom: 18px;
+        margin-bottom: 22px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .brand h1 {
+        font-family: "Kalam", "Segoe Print", "Bradley Hand", cursive, sans-serif;
+        font-weight: 700;
+        font-size: clamp(1.7rem, 5vw, 2.1rem);
+        margin: 2px 0 0;
+        text-wrap: balance;
+      }
+
+      .person-tabs {
+        display: flex;
+        gap: 8px;
+      }
+
+      .person-tab {
+        font-family: "Figtree", sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 9px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--ink-soft);
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-appearance: none;
+        transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+      }
+
+      .person-tab.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--accent-ink);
+      }
+
+      /* ---------- banner ---------- */
+
+      .banner {
+        background: var(--bad-soft);
+        border: 1px solid var(--bad);
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 0.88rem;
+        margin-bottom: 20px;
+      }
+
+      /* ---------- view tabs ---------- */
+
+      .view-tabs {
+        display: flex;
+        gap: 6px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 4px;
+        margin-bottom: 22px;
+        width: fit-content;
+      }
+
+      .view-tab {
+        font-family: "Figtree", sans-serif;
+        font-weight: 600;
+        font-size: 0.92rem;
+        padding: 9px 18px;
+        border-radius: 9px;
+        border: none;
+        background: transparent;
+        color: var(--ink-soft);
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-appearance: none;
+        transition: background 0.15s ease, color 0.15s ease;
+      }
+
+      .view-tab.active {
+        background: var(--surface);
+        color: var(--ink);
+        box-shadow: 0 1px 3px var(--shadow);
+      }
+
+      /* ---------- buttons & fields (shared) ---------- */
+
+      .btn {
+        font-family: "Figtree", sans-serif;
+        font-weight: 600;
+        font-size: 0.95rem;
+        padding: 12px 20px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+      }
+
+      .btn:active { transform: scale(0.98); }
+      .btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+
+      .btn-primary { background: var(--accent); color: var(--accent-ink); }
+      .btn-primary:hover:not(:disabled) { filter: brightness(1.06); }
+
+      .btn-ghost { background: transparent; border-color: var(--border); color: var(--ink); }
+      .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+
+      .btn-danger { background: transparent; border-color: var(--bad); color: var(--bad); }
+      .btn-danger:hover:not(:disabled) { background: var(--bad-soft); }
+
+      .btn-sm { padding: 8px 14px; font-size: 0.85rem; }
+
+      button:focus-visible, input:focus-visible, textarea:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      label { font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 6px; }
+
+      input[type="text"], textarea {
+        width: 100%;
+        font-family: "Figtree", sans-serif;
+        font-size: 1rem;
+        color: var(--ink);
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 11px 13px;
+        -webkit-appearance: none;
+        resize: vertical;
+      }
+
+      input[type="text"]::placeholder, textarea::placeholder { color: var(--ink-soft); opacity: 0.8; }
+
+      .field { margin-bottom: 14px; }
+      .field-error {
+        font-size: 0.85rem;
+        color: var(--bad);
+        background: var(--bad-soft);
+        border-radius: 8px;
+        padding: 8px 11px;
+        margin-top: 8px;
+      }
+
+      /* ---------- cards ---------- */
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 2px 10px var(--shadow);
+      }
+
+      /* ---------- add word form ---------- */
+
+      .add-card { margin-bottom: 26px; }
+      .add-card h2 {
+        font-family: "Figtree", sans-serif;
+        font-size: 1.05rem;
+        margin: 0 0 14px;
+      }
+      .add-row { display: flex; gap: 14px; flex-wrap: wrap; }
+      .add-row .field { flex: 1 1 220px; margin-bottom: 0; }
+      .add-actions { margin-top: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+      /* ---------- guide words ---------- */
+
+      .guide-words-row { margin-bottom: 10px; }
+      .guide-words {
+        font-family: "Figtree", sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.03em;
+        color: var(--ink);
+      }
+
+      /* ---------- word grid ---------- */
+
+      .word-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 14px;
+      }
+
+      .word-tile {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 16px 14px;
+        box-shadow: 0 1px 4px var(--shadow);
+      }
+
+      .word-term {
+        font-family: "Kalam", cursive, sans-serif;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin: 0 26px 6px 0;
+        color: var(--ink);
+        text-wrap: balance;
+      }
+
+      .word-def {
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+        margin: 0;
+      }
+
+      .word-stats {
+        font-family: "Space Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--ink-soft);
+        margin: 10px 0 0;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .mastered-badge {
+        position: absolute;
+        top: 14px;
+        right: 34px;
+        color: var(--highlight);
+        font-size: 1rem;
+      }
+
+      .tile-delete {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: var(--ink-soft);
+        font-size: 1rem;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+        -webkit-appearance: none;
+      }
+      .tile-delete:hover { border-color: var(--bad); color: var(--bad); }
+
+      .word-tile.confirming { display: flex; flex-direction: column; gap: 12px; }
+      .confirm-text { margin: 0; font-weight: 600; font-size: 0.95rem; }
+      .tile-actions { display: flex; gap: 8px; }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--ink-soft);
+      }
+      .empty-state p { margin: 0; }
+
+      /* ---------- practice ---------- */
+
+      .practice-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .score-value {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        font-size: 1.15rem;
+        font-variant-numeric: tabular-nums;
+        margin-left: 8px;
+      }
+
+      .tally { display: inline-flex; margin-left: 12px; vertical-align: middle; }
+      .tally-group { position: relative; display: inline-flex; gap: 3px; margin-right: 9px; }
+      .tally-mark { width: 3px; height: 18px; background: var(--ink-soft); border-radius: 1px; }
+      .tally-group.full::after {
+        content: "";
+        position: absolute;
+        left: -3px; right: -3px; top: 50%;
+        height: 3px;
+        background: var(--ink-soft);
+        transform: rotate(-28deg);
+        border-radius: 1px;
+      }
+
+      .practice-word-block { margin-bottom: 22px; }
+      .practice-word {
+        font-family: "Kalam", cursive, sans-serif;
+        font-weight: 700;
+        font-size: clamp(2rem, 8vw, 2.6rem);
+        margin: 4px 0 0;
+        text-wrap: balance;
+      }
+
+      .step-prompt { font-size: 1rem; margin: 0 0 14px; }
+
+      .mc-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+
+      @media (max-width: 520px) {
+        .mc-options { grid-template-columns: 1fr; }
+      }
+
+      .mc-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        text-align: left;
+        font-family: "Figtree", sans-serif;
+        font-size: 0.92rem;
+        color: var(--ink);
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-appearance: none;
+        transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+      }
+
+      .mc-option:hover:not(:disabled) { border-color: var(--accent); }
+
+      .mc-letter {
+        font-family: "Space Mono", monospace;
+        font-weight: 700;
+        font-size: 0.78rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mc-option.correct { background: var(--good-soft); border-color: var(--good); }
+      .mc-option.correct .mc-letter { background: var(--good); border-color: var(--good); color: var(--accent-ink); }
+      .mc-option.incorrect { background: var(--bad-soft); border-color: var(--bad); }
+      .mc-option.incorrect .mc-letter { background: var(--bad); border-color: var(--bad); color: var(--accent-ink); }
+      .mc-option.disabled { opacity: 0.55; cursor: default; }
+      .mc-option:disabled { cursor: default; }
+
+      .practice-step { margin-top: 6px; }
+
+      .sentence-input { margin-bottom: 4px; }
+
+      #checkSentenceBtn { margin: 10px 0 6px; }
+
+      .feedback-bubble {
+        margin-top: 14px;
+        padding: 13px 15px;
+        border-radius: 12px 12px 12px 4px;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        font-size: 0.92rem;
+      }
+      .feedback-bubble.good { background: var(--good-soft); border-color: var(--good); color: var(--ink); }
+      .feedback-bubble.bad { background: var(--bad-soft); border-color: var(--bad); color: var(--ink); }
+
+      #nextWordBtn, #mcContinueBtn { margin-top: 14px; }
+
+      .practice-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+
+      @media (max-width: 480px) {
+        .app { padding: 20px 16px 56px; }
+        .topbar { align-items: flex-start; }
+      }
+    </style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="eyebrow">Vocabulary Practice</span>
+      <h1>Word Board</h1>
+    </div>
+    <div class="person-tabs" id="personTabs">
+      <button type="button" class="person-tab" id="personBtnSebastian" data-person="sebastian">Sebastian</button>
+      <button type="button" class="person-tab" id="personBtnElle" data-person="elle">Elle</button>
+    </div>
+  </header>
+
+  <div class="banner" id="dbStatusBanner" hidden></div>
+
+  <nav class="view-tabs">
+    <button type="button" class="view-tab" id="viewBtnWords">My Words</button>
+    <button type="button" class="view-tab" id="viewBtnPractice">Practice</button>
+  </nav>
+
+  <main>
+    <section id="wordsView">
+      <div class="card add-card">
+        <h2>Add a word</h2>
+        <form id="addForm">
+          <div class="add-row">
+            <div class="field">
+              <label for="wordInput">Word</label>
+              <input type="text" id="wordInput" maxlength="40" placeholder="e.g. curious" autocomplete="off">
+            </div>
+            <div class="field">
+              <label for="defInput">Definition (in your own words)</label>
+              <textarea id="defInput" rows="2" maxlength="220" placeholder="What does it mean?"></textarea>
+            </div>
+          </div>
+          <div class="add-actions">
+            <button type="submit" class="btn btn-primary" id="addBtn">Add to word bank</button>
+          </div>
+          <p class="field-error" id="addError" hidden aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="guide-words-row">
+        <span class="eyebrow" id="guideWordsLabel" hidden>Guide words</span>
+        <div class="guide-words" id="guideWords" hidden></div>
+      </div>
+
+      <div class="word-grid" id="wordGrid"></div>
+
+      <div class="empty-state" id="wordsEmpty" hidden>
+        <p>No words yet &mdash; add your first one above.</p>
+      </div>
+    </section>
+
+    <section id="practiceView" hidden>
+      <div class="card" id="practiceEmpty" hidden>
+        <span class="eyebrow">Not enough words yet</span>
+        <h2 class="practice-word" style="font-size:1.5rem;">Add a couple more words first</h2>
+        <p class="step-prompt">You need at least 2 words in your word bank before you can practice. Add a few, then come back.</p>
+        <button type="button" class="btn btn-primary" id="goAddWordsBtn">Add words &rarr;</button>
+      </div>
+
+      <div class="card" id="practiceActive" hidden>
+        <div class="practice-head">
+          <div>
+            <span class="eyebrow">Score</span>
+            <span class="score-value" id="scoreValue">0/0</span>
+            <span class="tally" id="tally" aria-hidden="true"></span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="finishBtn">Finish practice</button>
+        </div>
+
+        <div class="practice-word-block">
+          <span class="eyebrow">Word</span>
+          <h2 class="practice-word" id="practiceWord"></h2>
+        </div>
+
+        <div class="practice-step" id="stepChoice">
+          <p class="step-prompt">What does this word mean?</p>
+          <div class="mc-options" id="mcOptions"></div>
+          <button type="button" class="btn btn-primary" id="mcContinueBtn" hidden>Continue &rarr;</button>
+        </div>
+
+        <div class="practice-step" id="stepSentence" hidden>
+          <p class="step-prompt">Use &ldquo;<span id="sentenceWordLabel"></span>&rdquo; in a sentence.</p>
+          <div class="field">
+            <textarea id="sentenceInput" class="sentence-input" rows="3" maxlength="220" placeholder="Type your sentence here&hellip;"></textarea>
+          </div>
+          <p class="field-error" id="sentenceError" hidden aria-live="polite"></p>
+
+          <button type="button" class="btn btn-primary" id="checkSentenceBtn">Check my sentence</button>
+
+          <div class="feedback-bubble" id="feedbackBubble" hidden aria-live="polite"></div>
+          <button type="button" class="btn btn-primary" id="nextWordBtn" hidden>Next word &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card" id="practiceSummary" hidden>
+        <span class="eyebrow">Practice complete</span>
+        <h2 class="practice-word" id="summaryHeading" style="font-size:1.8rem;"></h2>
+        <p class="step-prompt" id="summaryDetail"></p>
+        <div class="practice-actions">
+          <button type="button" class="btn btn-primary" id="practiceAgainBtn">Practice again</button>
+          <button type="button" class="btn btn-ghost" id="backToWordsBtn">Back to my words</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+// Same Firestore project the Pokémon collection and diamond balances use (project
+// "sebastian-pokemon") - one flat "vocabWords" collection, each document tagged with a
+// "character" field, filtered client-side per person (same pattern as the "cards" collection).
+const firebaseConfig = {
+    apiKey: "AIzaSyDI2oLf0V65GCgrKV_-lHkHPS7BgqlSEos",
+    authDomain: "sebastian-pokemon.firebaseapp.com",
+    projectId: "sebastian-pokemon",
+    storageBucket: "sebastian-pokemon.firebasestorage.app",
+    messagingSenderId: "938261668086",
+    appId: "1:938261668086:web:6e31ca7d53a8f79da38cd7"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const firestoreDb = getFirestore(firebaseApp);
+const wordsRef = collection(firestoreDb, "vocabWords");
+
+function makeWordId(person) {
+  return person + "-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function addWordDoc(data) {
+  return setDoc(doc(wordsRef, makeWordId(data.character)), data);
+}
+
+function deleteWordDoc(id) {
+  return deleteDoc(doc(wordsRef, id));
+}
+
+function updateWordStats(id, timesSeen, timesCorrect) {
+  return setDoc(doc(wordsRef, id), { timesSeen: timesSeen, timesCorrect: timesCorrect }, { merge: true });
+}
+
+function watchWords(onChange, onError) {
+  return onSnapshot(wordsRef, function (snapshot) {
+    onChange(snapshot.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }));
+  }, onError);
+}
+
+(function () {
+  "use strict";
+
+  var PRAISE_MESSAGES = ["Nice sentence!", "Great use of the word!", "That works well!", "Well written!"];
+
+  var allWords = [];
+
+  var state = {
+    person: "sebastian",
+    words: [],
+    view: "words",
+    confirmDeleteId: null,
+    practice: createInitialPractice()
+  };
+
+  function createInitialPractice() {
+    return {
+      mode: "idle",
+      pool: [],
+      word: null,
+      options: [],
+      lastWordId: null,
+      step: "choice",
+      choiceAnswered: false,
+      chosenIndex: null,
+      mcCorrect: null,
+      sentenceVerdict: null,
+      sessionCorrect: 0,
+      sessionTotal: 0
+    };
+  }
+
+  var els = {};
+
+  function cacheEls() {
+    [
+      "personBtnSebastian", "personBtnElle", "dbStatusBanner",
+      "viewBtnWords", "viewBtnPractice",
+      "addForm", "wordInput", "defInput", "addError", "addBtn",
+      "guideWords", "guideWordsLabel", "wordGrid", "wordsEmpty",
+      "wordsView", "practiceView",
+      "practiceEmpty", "practiceActive", "practiceSummary",
+      "scoreValue", "tally", "finishBtn",
+      "practiceWord", "stepChoice", "mcOptions", "mcContinueBtn",
+      "stepSentence", "sentenceWordLabel", "sentenceInput", "sentenceError",
+      "checkSentenceBtn", "feedbackBubble", "nextWordBtn",
+      "summaryHeading", "summaryDetail", "practiceAgainBtn", "backToWordsBtn",
+      "goAddWordsBtn"
+    ].forEach(function (id) { els[id] = document.getElementById(id); });
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (ch) {
+      if (ch === "&") return "&amp;";
+      if (ch === "<") return "&lt;";
+      if (ch === ">") return "&gt;";
+      if (ch === '"') return "&quot;";
+      return "&#39;";
+    });
+  }
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function getInitialPerson() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var fromQuery = (params.get("person") || "").toLowerCase();
+      if (fromQuery === "sebastian" || fromQuery === "elle") return fromQuery;
+    } catch (e) {}
+    try {
+      var stored = localStorage.getItem("wordboard.person");
+      if (stored === "sebastian" || stored === "elle") return stored;
+    } catch (e) {}
+    return "sebastian";
+  }
+
+  function rememberPerson(person) {
+    try { localStorage.setItem("wordboard.person", person); } catch (e) {}
+  }
+
+  /* ---------------- boot ---------------- */
+
+  function boot() {
+    cacheEls();
+    state.person = getInitialPerson();
+    bindStaticListeners();
+    renderPersonTabs();
+    setView("words");
+
+    watchWords(function (docs) {
+      allWords = docs;
+      refreshWordsForPerson();
+    }, function () {
+      els.dbStatusBanner.hidden = false;
+      els.dbStatusBanner.textContent = "Couldn't connect to the word bank — check your internet connection and reload the page.";
+    });
+  }
+
+  function refreshWordsForPerson() {
+    state.words = allWords
+      .filter(function (w) { return w.character === state.person; })
+      .sort(function (a, b) { return (a.word || "").localeCompare(b.word || ""); });
+    if (state.view === "words") renderWordGrid();
+    if (state.view === "practice" && state.practice.mode !== "round") renderPracticeView();
+  }
+
+  /* ---------------- person + view switching ---------------- */
+
+  function renderPersonTabs() {
+    els.personBtnSebastian.classList.toggle("active", state.person === "sebastian");
+    els.personBtnElle.classList.toggle("active", state.person === "elle");
+  }
+
+  function switchPerson(person) {
+    if (person === state.person) return;
+    state.person = person;
+    rememberPerson(person);
+    state.confirmDeleteId = null;
+    state.practice = createInitialPractice();
+    renderPersonTabs();
+    refreshWordsForPerson();
+    setView("words");
+  }
+
+  function setView(view) {
+    state.view = view;
+    els.viewBtnWords.classList.toggle("active", view === "words");
+    els.viewBtnPractice.classList.toggle("active", view === "practice");
+    els.wordsView.hidden = view !== "words";
+    els.practiceView.hidden = view !== "practice";
+    if (view === "words") renderWordGrid();
+    if (view === "practice") renderPracticeView();
+  }
+
+  function goToPractice() {
+    if (state.words.length < 2) { setView("practice"); return; }
+    if (state.practice.mode === "idle" || state.practice.mode === "summary") {
+      enterPractice();
+    } else {
+      setView("practice");
+    }
+  }
+
+  /* ---------------- words view ---------------- */
+
+  function renderWordGrid() {
+    if (!state.words.length) {
+      els.wordGrid.innerHTML = "";
+      els.wordsEmpty.hidden = false;
+      els.guideWords.hidden = true;
+      els.guideWordsLabel.hidden = true;
+      return;
+    }
+    els.wordsEmpty.hidden = true;
+    els.guideWords.hidden = false;
+    els.guideWordsLabel.hidden = false;
+    els.guideWords.textContent = state.words.length > 1
+      ? state.words[0].word.toUpperCase() + "  –  " + state.words[state.words.length - 1].word.toUpperCase()
+      : state.words[0].word.toUpperCase();
+
+    els.wordGrid.innerHTML = state.words.map(renderTile).join("");
+  }
+
+  function renderTile(w) {
+    if (state.confirmDeleteId === w.id) {
+      return '<div class="word-tile confirming" data-id="' + w.id + '">' +
+        '<p class="confirm-text">Remove “' + escapeHtml(w.word) + '”?</p>' +
+        '<div class="tile-actions">' +
+        '<button type="button" class="btn btn-danger btn-sm" data-action="confirm-delete" data-id="' + w.id + '">Remove</button>' +
+        '<button type="button" class="btn btn-ghost btn-sm" data-action="cancel-delete" data-id="' + w.id + '">Keep</button>' +
+        '</div></div>';
+    }
+    var mastered = (w.timesCorrect || 0) > 0;
+    var stats = (w.timesSeen || 0) > 0
+      ? '<p class="word-stats">Practiced ' + w.timesSeen + '× &middot; Right ' + (w.timesCorrect || 0) + '×</p>'
+      : "";
+    return '<div class="word-tile" data-id="' + w.id + '">' +
+      (mastered ? '<span class="mastered-badge" title="Mastered ' + w.timesCorrect + ' time' + (w.timesCorrect === 1 ? '' : 's') + '">★</span>' : "") +
+      '<p class="word-term">' + escapeHtml(w.word) + '</p>' +
+      '<p class="word-def">' + escapeHtml(w.definition) + '</p>' +
+      stats +
+      '<button type="button" class="tile-delete" data-action="delete" data-id="' + w.id + '" aria-label="Remove ' + escapeHtml(w.word) + '">×</button>' +
+      '</div>';
+  }
+
+  function handleAddWord(e) {
+    e.preventDefault();
+    var word = els.wordInput.value.trim();
+    var definition = els.defInput.value.trim();
+    els.addError.hidden = true;
+
+    if (!word || !definition) {
+      els.addError.textContent = "Type a word and its definition.";
+      els.addError.hidden = false;
+      return;
+    }
+    if (state.words.some(function (w) { return w.word.toLowerCase() === word.toLowerCase(); })) {
+      els.addError.textContent = "“" + word + "” is already in the word bank.";
+      els.addError.hidden = false;
+      return;
+    }
+
+    els.addBtn.disabled = true;
+    addWordDoc({
+      character: state.person,
+      word: word,
+      definition: definition,
+      createdAt: Date.now(),
+      timesSeen: 0,
+      timesCorrect: 0
+    }).then(function () {
+      els.wordInput.value = "";
+      els.defInput.value = "";
+      els.wordInput.focus();
+    }).catch(function () {
+      els.addError.textContent = "Could not save that word — try again.";
+      els.addError.hidden = false;
+    }).finally(function () {
+      els.addBtn.disabled = false;
+    });
+  }
+
+  function deleteWord(id) {
+    state.confirmDeleteId = null;
+    renderWordGrid();
+    deleteWordDoc(id).catch(function () {});
+  }
+
+  /* ---------------- practice ---------------- */
+
+  function renderPracticeView() {
+    var enough = state.words.length >= 2;
+    els.practiceEmpty.hidden = enough;
+    els.practiceActive.hidden = !enough || state.practice.mode !== "round";
+    els.practiceSummary.hidden = !enough || state.practice.mode !== "summary";
+    if (!enough) return;
+    if (state.practice.mode === "summary") { renderSummary(); return; }
+    if (state.practice.mode === "round") renderRound();
+  }
+
+  function enterPractice() {
+    state.practice.pool = state.words.slice();
+    state.practice.sessionCorrect = 0;
+    state.practice.sessionTotal = 0;
+    state.practice.lastWordId = null;
+    state.practice.mode = "round";
+    pickRound();
+    setView("practice");
+  }
+
+  function pickRound() {
+    var p = state.practice;
+    var pool = p.pool;
+    var word;
+    do {
+      word = pool[Math.floor(Math.random() * pool.length)];
+    } while (pool.length > 1 && word.id === p.lastWordId);
+    p.lastWordId = word.id;
+
+    var others = pool.filter(function (w) { return w.id !== word.id; });
+    others = shuffleArray(others);
+    var numOptions = Math.min(4, pool.length);
+    var distractors = others.slice(0, numOptions - 1).map(function (w) { return w.definition; });
+    var options = shuffleArray([word.definition].concat(distractors));
+
+    p.word = word;
+    p.options = options;
+    p.step = "choice";
+    p.choiceAnswered = false;
+    p.chosenIndex = null;
+    p.mcCorrect = null;
+    p.sentenceVerdict = null;
+    if (els.sentenceInput) els.sentenceInput.value = "";
+    if (els.sentenceError) els.sentenceError.hidden = true;
+  }
+
+  function renderRound() {
+    var p = state.practice;
+    els.scoreValue.textContent = p.sessionCorrect + "/" + p.sessionTotal;
+    els.tally.innerHTML = tallyMarkup(p.sessionCorrect);
+    els.practiceWord.textContent = p.word.word;
+
+    els.mcOptions.innerHTML = p.options.map(function (opt, i) {
+      var isCorrect = opt === p.word.definition;
+      var cls = "mc-option";
+      if (p.choiceAnswered) {
+        if (isCorrect) cls += " correct";
+        else if (i === p.chosenIndex) cls += " incorrect";
+        else cls += " disabled";
+      }
+      return '<button type="button" class="' + cls + '" data-index="' + i + '"' + (p.choiceAnswered ? " disabled" : "") + '>' +
+        '<span class="mc-letter">' + String.fromCharCode(65 + i) + '</span>' +
+        '<span class="mc-text">' + escapeHtml(opt) + '</span></button>';
+    }).join("");
+
+    els.mcContinueBtn.hidden = !p.choiceAnswered;
+
+    var showSentence = p.step === "sentence";
+    els.stepSentence.hidden = !showSentence;
+    if (showSentence) {
+      els.sentenceWordLabel.textContent = p.word.word;
+      els.checkSentenceBtn.textContent = p.sentenceVerdict ? "Check again" : "Check my sentence";
+
+      if (p.sentenceVerdict) {
+        var ok = p.sentenceVerdict.overall;
+        els.feedbackBubble.hidden = false;
+        els.feedbackBubble.className = "feedback-bubble " + (ok ? "good" : "bad");
+        els.feedbackBubble.innerHTML = "<strong>" + (ok ? "✓ " : "✗ ") + "</strong>" + escapeHtml(p.sentenceVerdict.feedback);
+        els.nextWordBtn.hidden = false;
+      } else {
+        els.feedbackBubble.hidden = true;
+        els.nextWordBtn.hidden = true;
+      }
+    }
+  }
+
+  function tallyMarkup(n) {
+    if (!n) return "";
+    var groups = [];
+    var remaining = n;
+    while (remaining > 0) {
+      var inGroup = Math.min(5, remaining);
+      groups.push(inGroup);
+      remaining -= inGroup;
+    }
+    return groups.map(function (count) {
+      var marks = "";
+      for (var i = 0; i < count; i++) marks += '<span class="tally-mark"></span>';
+      return '<span class="tally-group' + (count === 5 ? " full" : "") + '">' + marks + "</span>";
+    }).join("");
+  }
+
+  function commitRound() {
+    var p = state.practice;
+    var sentenceOk = p.sentenceVerdict ? p.sentenceVerdict.overall : false;
+    var roundCorrect = !!p.mcCorrect && sentenceOk;
+    p.sessionTotal += 1;
+    if (roundCorrect) p.sessionCorrect += 1;
+    persistRoundStats(p.word.id, roundCorrect);
+  }
+
+  function persistRoundStats(id, roundCorrect) {
+    var current = state.words.find(function (w) { return w.id === id; });
+    var timesSeen = ((current && current.timesSeen) || 0) + 1;
+    var timesCorrect = ((current && current.timesCorrect) || 0) + (roundCorrect ? 1 : 0);
+    updateWordStats(id, timesSeen, timesCorrect).catch(function () {});
+  }
+
+  function renderSummary() {
+    var p = state.practice;
+    var pct = p.sessionTotal ? Math.round((p.sessionCorrect / p.sessionTotal) * 100) : 0;
+    var heading, detail;
+    if (p.sessionTotal === 0) {
+      heading = "Practice complete";
+      detail = "You finished before answering any words — try again when you’re ready.";
+    } else if (pct >= 80) {
+      heading = "Amazing work!";
+      detail = "You got " + p.sessionCorrect + " of " + p.sessionTotal + " right (" + pct + "%). Your word bank is looking strong.";
+    } else if (pct >= 50) {
+      heading = "Nice practice!";
+      detail = "You got " + p.sessionCorrect + " of " + p.sessionTotal + " right (" + pct + "%). A few more rounds and you’ll have these down.";
+    } else {
+      heading = "Good try!";
+      detail = "You got " + p.sessionCorrect + " of " + p.sessionTotal + " right (" + pct + "%). Practice makes progress — try again?";
+    }
+    els.summaryHeading.textContent = heading;
+    els.summaryDetail.textContent = detail;
+  }
+
+  // Rule-based sentence check (no AI): confirms the word is used, the sentence isn't just the
+  // definition pasted back, and it has the basic shape of a real sentence. It can't judge whether
+  // the word's MEANING was used correctly - only structure and word presence.
+  function evaluateSentence(word, definition, sentence) {
+    var trimmed = sentence.trim();
+    var lowerSentence = trimmed.toLowerCase();
+    var lowerWord = word.toLowerCase();
+
+    if (lowerSentence.indexOf(lowerWord) === -1) {
+      return { overall: false, feedback: "Try to use “" + word + "” (or a form of it) somewhere in your sentence." };
+    }
+    var normalizedSentence = lowerSentence.replace(/[^a-z]/g, "");
+    var normalizedDef = definition.toLowerCase().replace(/[^a-z]/g, "");
+    if (normalizedSentence === normalizedDef) {
+      return { overall: false, feedback: "That looks like your definition — try writing a brand new sentence instead." };
+    }
+    var wordCount = trimmed.split(/\s+/).filter(Boolean).length;
+    if (wordCount < 3) {
+      return { overall: false, feedback: "Write a full sentence, not just a word or two." };
+    }
+    var firstLetterMatch = trimmed.match(/[A-Za-z]/);
+    if (firstLetterMatch && firstLetterMatch[0] !== firstLetterMatch[0].toUpperCase()) {
+      return { overall: false, feedback: "Sentences usually start with a capital letter." };
+    }
+    if (!/[.!?]$/.test(trimmed)) {
+      return { overall: false, feedback: "Don't forget to end with a period, question mark, or exclamation point." };
+    }
+    return { overall: true, feedback: PRAISE_MESSAGES[Math.floor(Math.random() * PRAISE_MESSAGES.length)] };
+  }
+
+  function checkSentence() {
+    var text = els.sentenceInput.value.trim();
+    els.sentenceError.hidden = true;
+    if (!text) {
+      els.sentenceError.textContent = "Write a sentence first.";
+      els.sentenceError.hidden = false;
+      return;
+    }
+    var p = state.practice;
+    p.sentenceVerdict = evaluateSentence(p.word.word, p.word.definition, text);
+    renderRound();
+    els.nextWordBtn.focus();
+  }
+
+  /* ---------------- events ---------------- */
+
+  function bindStaticListeners() {
+    els.personBtnSebastian.addEventListener("click", function () { switchPerson("sebastian"); });
+    els.personBtnElle.addEventListener("click", function () { switchPerson("elle"); });
+
+    els.viewBtnWords.addEventListener("click", function () { setView("words"); });
+    els.viewBtnPractice.addEventListener("click", goToPractice);
+
+    els.addForm.addEventListener("submit", handleAddWord);
+
+    els.wordGrid.addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+      var id = btn.getAttribute("data-id");
+      var action = btn.getAttribute("data-action");
+      if (action === "delete") { state.confirmDeleteId = id; renderWordGrid(); }
+      else if (action === "cancel-delete") { state.confirmDeleteId = null; renderWordGrid(); }
+      else if (action === "confirm-delete") { deleteWord(id); }
+    });
+
+    els.goAddWordsBtn.addEventListener("click", function () {
+      setView("words");
+      els.wordInput.focus();
+    });
+
+    els.mcOptions.addEventListener("click", function (e) {
+      var btn = e.target.closest("button.mc-option");
+      if (!btn || btn.disabled) return;
+      var i = Number(btn.getAttribute("data-index"));
+      var p = state.practice;
+      p.chosenIndex = i;
+      p.mcCorrect = p.options[i] === p.word.definition;
+      p.choiceAnswered = true;
+      renderRound();
+      els.mcContinueBtn.focus();
+    });
+
+    els.mcContinueBtn.addEventListener("click", function () {
+      state.practice.step = "sentence";
+      renderRound();
+    });
+
+    els.checkSentenceBtn.addEventListener("click", checkSentence);
+
+    els.nextWordBtn.addEventListener("click", function () {
+      commitRound();
+      pickRound();
+      renderRound();
+    });
+
+    els.finishBtn.addEventListener("click", function () {
+      state.practice.mode = "summary";
+      renderPracticeView();
+    });
+
+    els.practiceAgainBtn.addEventListener("click", function () {
+      if (state.words.length < 2) { renderPracticeView(); return; }
+      enterPractice();
+    });
+
+    els.backToWordsBtn.addEventListener("click", function () { setView("words"); });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
