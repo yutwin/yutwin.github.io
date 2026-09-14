@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sebastian's Pokémon Collection</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 95%;
+            max-width: 1000px;
+            overflow: hidden;
+            margin: 15px 0;
+            align-self: flex-start;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin: 0 0 20px;
+            font-size: 1.8rem;
+        }
+
+        .back-link {
+            color: #6e8efb;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .value-banner {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0 25px;
+        }
+
+        .value-banner .amount {
+            font-size: 2.4rem;
+            font-weight: bold;
+        }
+
+        .value-banner .sub {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 6px;
+        }
+
+        .refresh-btn {
+            margin-top: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .refresh-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .refresh-btn:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .view-tab {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f5f5f5;
+            color: #555;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+        }
+
+        .view-tab:hover:not(.active) {
+            background-color: #eee;
+        }
+
+        .view-tab.active {
+            background-color: #6e8efb;
+            color: white;
+            border-color: #6e8efb;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-row input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .filter-bar select {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: white;
+            -webkit-appearance: none;
+        }
+
+        .search-row button {
+            background-color: #6e8efb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+            white-space: nowrap;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+
+        .search-row button:hover {
+            background-color: #5a7ad9;
+        }
+
+        .status-text {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            margin: 10px 0;
+            min-height: 20px;
+        }
+
+        .status-text.error {
+            color: #c0392b;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .poke-card {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .poke-card img {
+            width: 100%;
+            aspect-ratio: 63 / 88;
+            object-fit: contain;
+            background-color: #eee;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            cursor: zoom-out;
+        }
+
+        .image-modal.open {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .image-modal-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2.5rem;
+            line-height: 1;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        .poke-card-noimg {
+            width: 100%;
+            aspect-ratio: 63 / 88;
+            background-color: #eee;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .poke-card .name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.3;
+        }
+
+        .poke-card .meta {
+            font-size: 11px;
+            color: #888;
+            margin: 4px 0 8px;
+        }
+
+        .poke-card .price {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .poke-card .price.unavailable {
+            color: #999;
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        .poke-card .action-btn {
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: auto;
+            touch-action: manipulation;
+        }
+
+        .poke-card .add-btn {
+            background-color: #6e8efb;
+            color: white;
+        }
+
+        .poke-card .add-btn:hover {
+            background-color: #5a7ad9;
+        }
+
+        .poke-card .add-btn.added {
+            background-color: #43a047;
+        }
+
+        .poke-card .remove-btn {
+            background-color: #eee;
+            color: #c0392b;
+        }
+
+        .poke-card .remove-btn:hover {
+            background-color: #f5d5d5;
+        }
+
+        .poke-card .store-btn {
+            background-color: #a777e3;
+            color: white;
+        }
+
+        .poke-card .store-btn:hover {
+            background-color: #9660d9;
+        }
+
+        .poke-card .store-btn.added {
+            background-color: #43a047;
+        }
+
+        /* Search results can show two stacked actions (Add to Collection / Add to Dad's Store) -
+           the group as a whole is pushed to the card's bottom, and buttons inside it stack with a
+           small gap instead of each competing for the same auto margin individually. */
+        .poke-card .card-actions {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .poke-card .card-actions .action-btn {
+            margin-top: 0;
+        }
+
+        .poke-card .edit-btn {
+            background-color: #6e8efb;
+            color: white;
+        }
+
+        .poke-card .edit-btn:hover {
+            background-color: #5a7ad9;
+        }
+
+        .poke-card .price-edit-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+        }
+
+        .poke-card .save-price-btn {
+            background-color: #43a047;
+            color: white;
+        }
+
+        .poke-card .save-price-btn:hover {
+            background-color: #388e3c;
+        }
+
+        .poke-card .cancel-edit-btn {
+            background-color: #eee;
+            color: #555;
+        }
+
+        .poke-card .cancel-edit-btn:hover {
+            background-color: #ddd;
+        }
+
+        .admin-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .admin-bar input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            -webkit-appearance: none;
+        }
+
+        .admin-toggle-btn {
+            background-color: #f5f5f5;
+            color: #555;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+        }
+
+        .admin-toggle-btn:hover {
+            background-color: #eee;
+        }
+
+        .admin-toggle-btn.active {
+            background-color: #6e8efb;
+            color: white;
+            border-color: #6e8efb;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #888;
+            padding: 30px 10px;
+            font-size: 14px;
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .value-banner .amount {
+                font-size: 1.9rem;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <a class="back-link" href="index.html">&larr; Back to Character Selection</a>
+            <h1>Sebastian's Pokémon Collection</h1>
+
+            <div class="value-banner">
+                <div class="amount" id="total-value">$0.00</div>
+                <div class="sub" id="value-sub">0 cards</div>
+                <button class="refresh-btn" id="refresh-btn">Refresh Prices</button>
+            </div>
+
+            <div class="view-tabs">
+                <button class="view-tab" id="tab-add" data-view="add">Add a Card</button>
+                <button class="view-tab" id="tab-collection" data-view="collection">My Collection</button>
+                <button class="view-tab" id="tab-store" data-view="store">Dad's Store</button>
+            </div>
+
+            <div id="add-view">
+                <div class="search-row">
+                    <input type="text" id="search-input" placeholder="Search by card name, e.g. Charizard">
+                    <button id="search-btn">Search</button>
+                </div>
+                <div class="status-text" id="import-status"></div>
+                <div class="filter-bar">
+                    <select id="sort-select">
+                        <option value="relevance">Sort: Best Match</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="date-desc">Release Date: Newest First</option>
+                        <option value="date-asc">Release Date: Oldest First</option>
+                    </select>
+                    <select id="page-size-select">
+                        <option value="10">Show 10</option>
+                        <option value="50">Show 50</option>
+                        <option value="all" selected>Show All</option>
+                    </select>
+                </div>
+                <div class="status-text" id="search-status"></div>
+                <div class="card-grid" id="search-results"></div>
+            </div>
+
+            <div id="collection-view">
+                <div class="search-row">
+                    <input type="text" id="collection-search-input" placeholder="Search your collection by name or set">
+                </div>
+                <div class="filter-bar">
+                    <select id="collection-sort-select">
+                        <option value="name-asc">Name: A to Z</option>
+                        <option value="name-desc">Name: Z to A</option>
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="added-desc">Date Added: Newest First</option>
+                        <option value="added-asc">Date Added: Oldest First</option>
+                    </select>
+                </div>
+                <div class="status-text" id="collection-status"></div>
+                <div class="card-grid" id="collection-grid"></div>
+                <div class="empty-state" id="empty-state" style="display: none;">No cards yet — search above and add Sebastian's cards to get started.</div>
+            </div>
+
+            <div id="store-view">
+                <div class="admin-bar">
+                    <input type="password" id="store-admin-password" placeholder="Admin password">
+                    <button type="button" class="admin-toggle-btn" id="store-admin-toggle">Enter Admin Mode</button>
+                </div>
+                <div class="status-text" id="store-admin-status"></div>
+                <form id="store-item-form">
+                    <div class="search-row">
+                        <input type="text" id="store-item-name" placeholder="Item name" required>
+                    </div>
+                    <div class="search-row">
+                        <input type="text" id="store-item-image" placeholder="Image URL (optional)">
+                    </div>
+                    <div class="search-row">
+                        <input type="text" id="store-item-description" placeholder="Description (optional)">
+                    </div>
+                    <div class="search-row">
+                        <input type="number" id="store-item-diamonds" placeholder="Diamonds" min="1" step="1" required>
+                        <button type="submit">Add Item</button>
+                    </div>
+                </form>
+                <div class="status-text" id="store-form-status"></div>
+                <div class="search-row">
+                    <input type="text" id="store-search-input" placeholder="Search the store by name or description">
+                </div>
+                <div class="filter-bar">
+                    <select id="store-sort-select">
+                        <option value="name-asc">Name: A to Z</option>
+                        <option value="name-desc">Name: Z to A</option>
+                        <option value="diamonds-desc">Diamonds: High to Low</option>
+                        <option value="diamonds-asc">Diamonds: Low to High</option>
+                        <option value="added-desc">Date Added: Newest First</option>
+                        <option value="added-asc">Date Added: Oldest First</option>
+                    </select>
+                </div>
+                <div class="status-text" id="store-status"></div>
+                <div class="card-grid" id="store-grid"></div>
+                <div class="empty-state" id="store-empty-state" style="display: none;">No items in the store yet — add one above.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-modal" id="image-modal">
+        <button class="image-modal-close" id="image-modal-close" aria-label="Close">&times;</button>
+        <img id="image-modal-img" src="" alt="">
+    </div>
+
+    <script type="module">
+        // Real database (Firestore) for Sebastian's collection - replaces the earlier local-file
+        // approach so every add/remove persists instantly, automatically, in any browser, with no
+        // file-permission click ever needed. Exposed as a plain global (rather than importing this
+        // module from the main script) since the main script is a large pre-existing plain script,
+        // not itself written as a module with its own imports.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+        import { getFirestore, collection as fsCollection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDI2oLf0V65GCgrKV_-lHkHPS7BgqlSEos",
+            authDomain: "sebastian-pokemon.firebaseapp.com",
+            projectId: "sebastian-pokemon",
+            storageBucket: "sebastian-pokemon.firebasestorage.app",
+            messagingSenderId: "938261668086",
+            appId: "1:938261668086:web:6e31ca7d53a8f79da38cd7"
+        };
+
+        const firebaseApp = initializeApp(firebaseConfig);
+        const db = getFirestore(firebaseApp);
+        const cardsRef = fsCollection(db, 'cards');
+        const storeItemsRef = fsCollection(db, 'storeItems');
+
+        window.firestoreDb = {
+            addCard: (instance) => setDoc(doc(cardsRef, instance.instanceId), instance),
+            removeCard: (instanceId) => deleteDoc(doc(cardsRef, instanceId)),
+            watchCollection: (onChange, onError) => onSnapshot(
+                cardsRef,
+                (snapshot) => onChange(snapshot.docs.map(d => d.data())),
+                onError
+            ),
+            addStoreItem: (item) => setDoc(doc(storeItemsRef, item.itemId), item),
+            removeStoreItem: (itemId) => deleteDoc(doc(storeItemsRef, itemId)),
+            updateStoreItemPrice: (itemId, diamonds) => setDoc(doc(storeItemsRef, itemId), { diamonds }, { merge: true }),
+            watchStoreItems: (onChange, onError) => onSnapshot(
+                storeItemsRef,
+                (snapshot) => onChange(snapshot.docs.map(d => d.data())),
+                onError
+            )
+        };
+    </script>
+
+    <script type="module">
+        // TCGdex (tcgdex.dev): free, no API key, far more reliable than pokemontcg.io in testing.
+        // Card search/metadata comes from its GraphQL endpoint (returns everything in one call,
+        // no pagination needed); pricing is REST-only and per-card, so it's fetched concurrently
+        // only for the cards actually being shown.
+        const TCGDEX_REST_BASE = 'https://api.tcgdex.net/v2/en';
+        const TCGDEX_GRAPHQL = 'https://api.tcgdex.net/v2/graphql';
+        const PRICE_FETCH_CONCURRENCY = 10;
+        const PRICE_CACHE_KEY = 'sebastianPokemonPriceCache';
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
+        }
+
+        // TCGdex doesn't have artwork for every card (mostly obscure promos). An empty src="" would
+        // make the browser treat the <img> as a request for the current page, showing a broken-icon;
+        // a placeholder box avoids that entirely.
+        // TCGdex's thumbnail URLs end in "/low.webp"; swapping that suffix for "/high.png" gets a
+        // full-resolution version from the same source. CSV-sourced photos have no such variant, so
+        // they're reused as-is - still bigger than the thumbnail's rendered size in the grid.
+        // Thumbnails come from two CDNs with different upgrade patterns: TCGdex's "/low.webp"
+        // suffix swaps for "/high.png", while TCGplayer's "_in_200x200.jpg" swaps its dimensions for
+        // "_in_1000x1000.jpg" (confirmed as the largest size that CDN serves - 1500x1500 404s).
+        function largeImageUrl(imageUrl) {
+            if (imageUrl.endsWith('/low.webp')) {
+                return imageUrl.slice(0, -'/low.webp'.length) + '/high.png';
+            }
+            if (imageUrl.includes('tcgplayer-cdn.tcgplayer.com')) {
+                return imageUrl.replace(/_in_\d+x\d+\.jpg$/, '_in_1000x1000.jpg');
+            }
+            return imageUrl;
+        }
+
+        function cardImageHtml(imageUrl, altText) {
+            if (imageUrl) {
+                return `<img src="${escapeHtml(imageUrl)}" data-large="${escapeHtml(largeImageUrl(imageUrl))}" alt="${escapeHtml(altText)}" loading="lazy">`;
+            }
+            return `<div class="poke-card-noimg" aria-label="${escapeHtml(altText)}">No image</div>`;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+        }
+
+        // Cardmarket prices come in EUR; show them as EUR rather than mislabeling as USD.
+        function formatPrice(priceInfo) {
+            if (!priceInfo || typeof priceInfo.value !== 'number') return null;
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: priceInfo.currency || 'USD' }).format(priceInfo.value);
+        }
+
+        function setStatus(el, message, isError) {
+            el.textContent = message || '';
+            el.classList.toggle('error', !!isError);
+        }
+
+        function loadPriceCache() {
+            try {
+                return JSON.parse(localStorage.getItem(PRICE_CACHE_KEY) || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function savePriceCache(value) {
+            localStorage.setItem(PRICE_CACHE_KEY, JSON.stringify(value));
+        }
+
+        let collection = []; // populated by Firestore's watchCollection callback, not localStorage
+        let priceCache = loadPriceCache();
+
+        // Live EUR->USD rate for converting Cardmarket's fallback prices, so the whole collection
+        // displays in one consistent currency. Fetched once per page load from Frankfurter (free,
+        // no key, ECB reference rates); falls back to a fixed approximation if that fetch fails.
+        const EUR_TO_USD_FALLBACK_RATE = 1.15;
+        let eurToUsdRate = null;
+
+        async function ensureExchangeRateLoaded() {
+            if (eurToUsdRate !== null) return eurToUsdRate;
+            try {
+                const data = await fetchJson('https://api.frankfurter.dev/v1/latest?base=EUR&symbols=USD');
+                if (data && data.rates && typeof data.rates.USD === 'number') {
+                    eurToUsdRate = data.rates.USD;
+                }
+            } catch (err) {
+                // fall through to fallback rate below
+            }
+            if (eurToUsdRate === null) eurToUsdRate = EUR_TO_USD_FALLBACK_RATE;
+            return eurToUsdRate;
+        }
+
+        // Picks the most representative market price off a FULL TCGdex card record.
+        // TCGdex's pricing lives in two possible places that don't consistently agree: the
+        // top-level card.pricing field, and each card.variants_detailed[].pricing. For a lot of
+        // cards (e.g. most Gym/Legendary Collection prints) only the top-level field is populated
+        // and variants_detailed carries no pricing at all - checking only the latter (an earlier
+        // bug here) made real, current prices look like missing data. Check every source found.
+        // TCGplayer (USD) preferred, Cardmarket (EUR) as fallback.
+        // Assumes ensureExchangeRateLoaded() has already run (fetchPricesFor awaits it first).
+        function extractPrice(card) {
+            const pricingSources = [card.pricing, ...(card.variants_detailed || []).map(v => v.pricing)].filter(Boolean);
+
+            for (const p of pricingSources) {
+                const tcg = p.tcgplayer;
+                if (!tcg) continue;
+                for (const key in tcg) {
+                    const sub = tcg[key];
+                    if (sub && typeof sub === 'object' && typeof sub.marketPrice === 'number') {
+                        return { value: sub.marketPrice, currency: 'USD', source: 'TCGplayer' };
+                    }
+                }
+            }
+            for (const p of pricingSources) {
+                const cm = p.cardmarket;
+                if (!cm) continue;
+                const eur = (typeof cm.trend === 'number' && cm.trend > 0) ? cm.trend
+                    : (typeof cm.avg === 'number' && cm.avg > 0) ? cm.avg
+                    : null;
+                if (eur !== null) {
+                    const rate = eurToUsdRate || EUR_TO_USD_FALLBACK_RATE;
+                    return { value: eur * rate, currency: 'USD', source: 'Cardmarket' };
+                }
+            }
+            return null;
+        }
+
+        // TCGdex's own artwork field is empty for a lot of prints, but its pricing payload (fetched
+        // anyway for every card) carries TCGplayer's internal product ID wherever TCGplayer pricing
+        // exists - and TCGplayer's CDN serves that product's photo from a predictable URL built from
+        // just that ID. This recovers a real photo for any card TCGdex itself has no image for,
+        // without needing a CSV or manual lookup. Confirmed against several products TCGdex sourced,
+        // not just ones already known from a CSV.
+        function extractTcgplayerImageUrl(card) {
+            const pricingSources = [card.pricing, ...(card.variants_detailed || []).map(v => v.pricing)].filter(Boolean);
+            for (const p of pricingSources) {
+                const tcg = p.tcgplayer;
+                if (!tcg) continue;
+                for (const key in tcg) {
+                    const sub = tcg[key];
+                    if (sub && typeof sub === 'object' && typeof sub.productId === 'number') {
+                        return `https://tcgplayer-cdn.tcgplayer.com/product/${sub.productId}_in_200x200.jpg`;
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Release dates live on the Set object, not embedded per-card in search results,
+        // so they're looked up from a one-time cached listing of all sets (see ensureSetsLoaded).
+        let setsReleaseDateMap = null;
+
+        async function ensureSetsLoaded() {
+            if (setsReleaseDateMap) return setsReleaseDateMap;
+            const data = await fetchGraphQL(SETS_QUERY);
+            setsReleaseDateMap = new Map((data.sets || []).map(s => [s.id, s.releaseDate]));
+            return setsReleaseDateMap;
+        }
+
+        function parseReleaseDate(card) {
+            const setId = card.set && card.set.id;
+            const raw = setId && setsReleaseDateMap ? setsReleaseDateMap.get(setId) : null;
+            return raw ? (new Date(raw).getTime() || 0) : 0;
+        }
+
+        // Price sorting reads from priceCache (populated by fetchPricesFor before sorting runs),
+        // since search result summaries don't carry pricing - only a per-card detail fetch does.
+        function sortCards(cards, sortMode) {
+            const sorted = cards.slice();
+            if (sortMode === 'price-desc' || sortMode === 'price-asc') {
+                const missing = sortMode === 'price-desc' ? -Infinity : Infinity;
+                const priceOf = (card) => {
+                    const cached = priceCache[card.id];
+                    return (cached && typeof cached.value === 'number') ? cached.value : missing;
+                };
+                sorted.sort((a, b) => {
+                    const va = priceOf(a);
+                    const vb = priceOf(b);
+                    return sortMode === 'price-desc' ? vb - va : va - vb;
+                });
+            } else if (sortMode === 'date-desc' || sortMode === 'date-asc') {
+                sorted.sort((a, b) => {
+                    const da = parseReleaseDate(a);
+                    const db = parseReleaseDate(b);
+                    return sortMode === 'date-desc' ? db - da : da - db;
+                });
+            }
+            return sorted;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Even reliable APIs have the occasional blip; a few retries smooths that over.
+        // A hung connection (no response at all) needs its own timeout - without one,
+        // a single stalled request could block a retry loop far longer than intended.
+        const RETRY_DELAYS_MS = [400, 800, 1600];
+        const FETCH_TIMEOUT_MS = 7000;
+
+        function fetchWithTimeout(url, options) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+            return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+        }
+
+        async function fetchJson(url) {
+            for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+                try {
+                    const res = await fetchWithTimeout(url);
+                    if (res.ok) return res.json();
+                } catch (err) {
+                    // fall through to retry
+                }
+                if (attempt < RETRY_DELAYS_MS.length) await sleep(RETRY_DELAYS_MS[attempt]);
+            }
+            throw new Error('request failed');
+        }
+
+        async function fetchGraphQL(query, variables) {
+            for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+                try {
+                    const res = await fetchWithTimeout(TCGDEX_GRAPHQL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query, variables })
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (!json.errors) return json.data;
+                    }
+                } catch (err) {
+                    // fall through to retry
+                }
+                if (attempt < RETRY_DELAYS_MS.length) await sleep(RETRY_DELAYS_MS[attempt]);
+            }
+            throw new Error('request failed');
+        }
+
+        const CARDS_SEARCH_QUERY = `query($name: String) {
+            cards(filters: { name: $name }) {
+                id
+                localId
+                name
+                image
+                set { id name }
+            }
+        }`;
+
+        const SETS_QUERY = `query { sets { id releaseDate } }`;
+
+        async function searchCardsRaw(term) {
+            const data = await fetchGraphQL(CARDS_SEARCH_QUERY, { name: term });
+            return (data && data.cards) || [];
+        }
+
+        // Pricing is only available per-card via REST, so it's fetched with a small
+        // concurrency pool rather than one request at a time (or all at once, which
+        // would be inconsiderate for a free, unauthenticated API).
+        async function fetchPricesFor(ids, options) {
+            const force = !!(options && options.force);
+            const uniqueIds = [...new Set(ids)].filter(id => force || !priceCache[id]);
+            if (uniqueIds.length === 0) return { attempted: 0, failed: 0 };
+
+            await ensureExchangeRateLoaded();
+
+            let failed = 0;
+            let cursor = 0;
+            async function worker() {
+                while (cursor < uniqueIds.length) {
+                    const id = uniqueIds[cursor++];
+                    try {
+                        const card = await fetchJson(`${TCGDEX_REST_BASE}/cards/${id}`);
+                        const price = extractPrice(card);
+                        // Derived from the same fetch, so it costs nothing extra - used as a fallback
+                        // photo wherever TCGdex itself has no artwork for this card.
+                        const fallbackImage = extractTcgplayerImageUrl(card);
+                        if (price) {
+                            priceCache[id] = { value: price.value, currency: price.currency, source: price.source, fetchedAt: new Date().toISOString(), fallbackImage };
+                        } else {
+                            // A CSV-imported snapshot price is worth more than nothing - keep it rather
+                            // than letting a "TCGdex still has no live price" result wipe it out. Cache
+                            // the null result otherwise (so it isn't re-fetched every sort/show change) -
+                            // a genuine fetch error stays fully uncached so it's retried next time.
+                            const existing = priceCache[id];
+                            const hasCsvFallback = existing && typeof existing.value === 'number' && (existing.source || '').startsWith('CSV');
+                            if (!hasCsvFallback) priceCache[id] = { value: null, fetchedAt: new Date().toISOString(), fallbackImage };
+                            failed++;
+                        }
+                    } catch (err) {
+                        failed++;
+                    }
+                }
+            }
+
+            const poolSize = Math.min(PRICE_FETCH_CONCURRENCY, uniqueIds.length);
+            await Promise.all(Array.from({ length: poolSize }, worker));
+            savePriceCache(priceCache);
+            return { attempted: uniqueIds.length, failed };
+        }
+
+        // ---- Search ----
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const sortSelect = document.getElementById('sort-select');
+        const pageSizeSelect = document.getElementById('page-size-select');
+        const searchStatus = document.getElementById('search-status');
+        const searchResults = document.getElementById('search-results');
+        let lastSearchTerm = '';
+        let lastSearchCards = [];
+        let searchDebounce = null;
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchDebounce);
+            if (searchInput.value.trim().length === 0) {
+                searchResults.innerHTML = '';
+                setStatus(searchStatus, '', false);
+                return;
+            }
+            searchDebounce = setTimeout(runSearch, 400);
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                clearTimeout(searchDebounce);
+                runSearch();
+            }
+        });
+
+        searchBtn.addEventListener('click', () => {
+            clearTimeout(searchDebounce);
+            runSearch();
+        });
+
+        pageSizeSelect.addEventListener('change', () => {
+            if (searchInput.value.trim().length >= 2) runSearch();
+        });
+
+        sortSelect.addEventListener('change', () => {
+            if (searchInput.value.trim().length >= 2) runSearch();
+        });
+
+        async function runSearch() {
+            const term = searchInput.value.trim();
+            if (!term) {
+                searchResults.innerHTML = '';
+                setStatus(searchStatus, '', false);
+                return;
+            }
+            if (term.length < 2) {
+                setStatus(searchStatus, 'Keep typing... (2+ characters)', false);
+                return;
+            }
+
+            if (term !== lastSearchTerm) {
+                setStatus(searchStatus, 'Searching...', false);
+                searchResults.innerHTML = '';
+                try {
+                    const cards = await searchCardsRaw(term);
+                    lastSearchTerm = term;
+                    lastSearchCards = cards;
+
+                    if (cards.length === 0) {
+                        setStatus(searchStatus, `No cards found for "${term}".`, false);
+                        return;
+                    }
+                } catch (err) {
+                    setStatus(searchStatus, "Couldn't reach the card database. Check your connection and try again.", true);
+                    return;
+                }
+            }
+
+            await applySortAndRender();
+        }
+
+        // Card metadata (name/image/set) always arrives in full via GraphQL - the only thing worth
+        // fetching selectively is pricing, since each price costs its own REST request. Price-sorting
+        // needs every card priced before it can sort; relevance/date sorting can pick the visible
+        // slice first and only price those, which is what keeps "sort by newest, show 10" cheap.
+        async function applySortAndRender() {
+            const pageSizeValue = pageSizeSelect.value;
+            const sortMode = sortSelect.value;
+            const isPriceSort = sortMode === 'price-desc' || sortMode === 'price-asc';
+            const isDateSort = sortMode === 'date-desc' || sortMode === 'date-asc';
+
+            if (isDateSort) await ensureSetsLoaded();
+
+            let ordered = lastSearchCards;
+            if (isPriceSort) {
+                setStatus(searchStatus, `Fetching prices for ${lastSearchCards.length} card${lastSearchCards.length === 1 ? '' : 's'}...`, false);
+                await fetchPricesFor(lastSearchCards.map(c => c.id));
+                ordered = sortCards(lastSearchCards, sortMode);
+            } else if (isDateSort) {
+                ordered = sortCards(lastSearchCards, sortMode);
+            }
+
+            const showCount = pageSizeValue === 'all' ? ordered.length : parseInt(pageSizeValue, 10);
+            const shown = ordered.slice(0, showCount);
+
+            if (!isPriceSort) {
+                setStatus(searchStatus, `Fetching prices for ${shown.length} card${shown.length === 1 ? '' : 's'}...`, false);
+                await fetchPricesFor(shown.map(c => c.id));
+            }
+
+            const totalCount = lastSearchCards.length;
+            const showingAll = shown.length >= totalCount;
+            setStatus(searchStatus, showingAll
+                ? `${totalCount} match${totalCount === 1 ? '' : 'es'} found, showing all.`
+                : `${totalCount} matches found, showing ${shown.length}.`, false);
+            renderSearchResults(shown);
+        }
+
+        // Which search result is mid-"Add to Dad's Store" (showing its inline diamond input),
+        // if any. Kept outside renderSearchResults so the choice survives its own re-render.
+        let addingToStoreCardId = null;
+
+        function renderSearchResults(cards) {
+            searchResults.innerHTML = cards.map(card => {
+                const cached = priceCache[card.id];
+                const priceHtml = (cached && typeof cached.value === 'number')
+                    ? `<div class="price">${formatPrice(cached)}</div>`
+                    : `<div class="price unavailable">No price data</div>`;
+                const img = card.image ? `${card.image}/low.webp` : ((cached && cached.fallbackImage) || '');
+                const setName = card.set && card.set.name;
+                const actionsHtml = (addingToStoreCardId === card.id)
+                    ? `<input type="number" class="price-edit-input" placeholder="Diamonds" min="1" step="1">
+                       <button class="action-btn save-price-btn" data-card-id="${escapeHtml(card.id)}">Confirm</button>
+                       <button class="action-btn cancel-edit-btn" data-card-id="${escapeHtml(card.id)}">Cancel</button>`
+                    : `<button class="action-btn add-btn" data-card-id="${escapeHtml(card.id)}">Add to Collection</button>
+                       <button class="action-btn store-btn" data-card-id="${escapeHtml(card.id)}">Add to Dad's Store</button>`;
+                return `
+                    <div class="poke-card">
+                        ${cardImageHtml(img, card.name)}
+                        <div class="name">${escapeHtml(card.name)}</div>
+                        <div class="meta">${escapeHtml(setName)} &middot; #${escapeHtml(card.localId)}</div>
+                        ${priceHtml}
+                        <div class="card-actions">${actionsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+
+            searchResults.querySelectorAll('.add-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const cardId = btn.getAttribute('data-card-id');
+                    const card = lastSearchCards.find(c => c.id === cardId);
+                    if (card) addCardToCollection(card, btn);
+                });
+            });
+
+            searchResults.querySelectorAll('.store-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    addingToStoreCardId = btn.getAttribute('data-card-id');
+                    renderSearchResults(cards);
+                });
+            });
+
+            searchResults.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    addingToStoreCardId = null;
+                    renderSearchResults(cards);
+                });
+            });
+
+            function confirmAddToStore(btn) {
+                const cardId = btn.getAttribute('data-card-id');
+                const card = lastSearchCards.find(c => c.id === cardId);
+                const input = btn.closest('.poke-card').querySelector('.price-edit-input');
+                const diamonds = parseInt(input.value, 10);
+                if (!card) return;
+                if (!Number.isFinite(diamonds) || diamonds <= 0) {
+                    setStatus(searchStatus, 'Enter a whole number of diamonds greater than 0.', true);
+                    return;
+                }
+                addCardToStore(card, diamonds);
+                addingToStoreCardId = null;
+                renderSearchResults(cards);
+            }
+
+            searchResults.querySelectorAll('.save-price-btn').forEach(btn => {
+                btn.addEventListener('click', () => confirmAddToStore(btn));
+            });
+
+            searchResults.querySelectorAll('.price-edit-input').forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        confirmAddToStore(input.closest('.poke-card').querySelector('.save-price-btn'));
+                    }
+                });
+            });
+        }
+
+        function addCardToCollection(card, btnEl, fallbackImage, fallbackPriceValue) {
+            // No need to seed priceCache here - applySortAndRender already fetched pricing
+            // for every currently-shown search result, including this one, before this button existed.
+            // Priority: an explicit fallbackImage (e.g. a CSV import's own photo), then TCGdex's own
+            // artwork, then the TCGplayer photo derived from pricing data (see extractTcgplayerImageUrl) -
+            // baked into the stored record now so it's permanent, not just a display-time fallback.
+            const cachedForImage = priceCache[card.id];
+            const instance = {
+                instanceId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                cardId: card.id,
+                name: card.name,
+                set: card.set ? card.set.name : '',
+                number: card.localId,
+                image: fallbackImage || (card.image ? `${card.image}/low.webp` : '') || (cachedForImage && cachedForImage.fallbackImage) || '',
+                addedAt: new Date().toISOString()
+            };
+            // Stored on the record itself (like a CSV import's own price) rather than only in
+            // priceCache, which is local to one browser and was never actually shared through the
+            // database - see effectivePriceFor.
+            if (typeof fallbackPriceValue === 'number') instance.fallbackPrice = fallbackPriceValue;
+            // Firestore is the source of truth - write through it and let watchCollection's
+            // listener update `collection` and re-render once the change comes back (this happens
+            // near-instantly in practice, since the SDK applies local writes optimistically before
+            // the server round-trip even completes).
+            window.firestoreDb.addCard(instance).catch(() => {
+                setStatus(importStatus, "Couldn't save that card - check your connection and try again.", true);
+            });
+
+            if (btnEl) {
+                const original = btnEl.textContent;
+                btnEl.textContent = 'Added ✓';
+                btnEl.classList.add('added');
+                setTimeout(() => {
+                    btnEl.textContent = original;
+                    btnEl.classList.remove('added');
+                }, 900);
+            }
+        }
+
+        // Lists a searched card as a Dad's Store item too (independent of whether it's also kept
+        // in the collection - adding one doesn't remove or require the other). Diamonds have no
+        // relationship to the card's dollar price shown above, so there's no way to derive one -
+        // the caller (renderSearchResults' inline Confirm flow) collects it via an on-page input
+        // rather than prompt(), which isn't reliably supported in every browser/context.
+        function addCardToStore(card, diamonds) {
+            const cachedForImage = priceCache[card.id];
+            const setName = card.set ? card.set.name : '';
+            const item = {
+                itemId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                name: card.name,
+                description: [setName, card.localId ? `#${card.localId}` : ''].filter(Boolean).join(' · '),
+                image: (card.image ? `${card.image}/low.webp` : '') || (cachedForImage && cachedForImage.fallbackImage) || '',
+                diamonds,
+                addedAt: new Date().toISOString()
+            };
+            window.firestoreDb.addStoreItem(item).catch(() => {
+                setStatus(importStatus, "Couldn't save that item to the store - check your connection and try again.", true);
+            });
+            setStatus(importStatus, `Added "${card.name}" to Dad's Store.`, false);
+        }
+
+        // ---- Firestore-backed collection (real database, not a local file) ----
+        // window.firestoreDb is set up by the Firebase module script above. Every add/remove writes
+        // straight through Firestore - there's no separate "save" step, no file permission dance,
+        // and it works in any browser since it's just a normal network call. watchCollection's
+        // callback fires immediately with the current data and again on every future change, so it
+        // both loads the initial collection and keeps it live afterward (including changes made from
+        // another browser/device connected to the same Firebase project).
+        const importStatus = document.getElementById('import-status');
+        let firestoreReady = false;
+
+        window.firestoreDb.watchCollection(
+            (cards) => {
+                firestoreReady = true;
+                collection = cards;
+                renderCollection();
+                refreshPrices(false);
+                showView(collection.length > 0 ? 'collection' : 'add');
+            },
+            (err) => {
+                setStatus(importStatus, "Couldn't reach the database. Check your connection and try again.", true);
+            }
+        );
+
+        // Minimal RFC4180-style parser: handles quoted fields, escaped "" quotes, and commas/newlines within quotes.
+        function parseCsv(text) {
+            const rows = [];
+            let row = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const c = text[i];
+                if (inQuotes) {
+                    if (c === '"') {
+                        if (text[i + 1] === '"') { field += '"'; i++; }
+                        else inQuotes = false;
+                    } else {
+                        field += c;
+                    }
+                } else if (c === '"') {
+                    inQuotes = true;
+                } else if (c === ',') {
+                    row.push(field);
+                    field = '';
+                } else if (c === '\n' || c === '\r') {
+                    if (c === '\r' && text[i + 1] === '\n') i++;
+                    row.push(field);
+                    field = '';
+                    if (row.length > 1 || row[0] !== '') rows.push(row);
+                    row = [];
+                } else {
+                    field += c;
+                }
+            }
+            if (field !== '' || row.length > 0) { row.push(field); rows.push(row); }
+            return rows;
+        }
+
+        function rowsToObjects(rows) {
+            if (rows.length === 0) return [];
+            const headers = rows[0].map(h => h.trim());
+            return rows.slice(1).map(cells => {
+                const obj = {};
+                headers.forEach((h, i) => { obj[h] = (cells[i] || '').trim(); });
+                return obj;
+            });
+        }
+
+
+        function normalizeCardNumber(n) {
+            if (!n) return '';
+            return n.split('/')[0].trim().toLowerCase().replace(/^0+(?=\d)/, '');
+        }
+
+        function normalizeSetName(s) {
+            return (s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        }
+
+        function setNameLooksLike(candidateName, hintName) {
+            if (!hintName) return false;
+            const candidate = normalizeSetName(candidateName);
+            const hint = normalizeSetName(hintName);
+            return !!candidate && !!hint && (hint.includes(candidate) || candidate.includes(hint));
+        }
+
+        // Searches TCGdex for `name` and picks the single print that matches numberHint/setHint,
+        // returning null (rather than guessing) when the match is ambiguous.
+        async function findBestCardMatch(name, numberHint, setHint) {
+            const candidates = await searchCardsRaw(name);
+            if (candidates.length === 0) return null;
+            if (candidates.length === 1) return candidates[0];
+
+            const normHint = normalizeCardNumber(numberHint);
+            const byNumber = normHint ? candidates.filter(c => normalizeCardNumber(c.localId) === normHint) : [];
+
+            if (byNumber.length === 1) return byNumber[0];
+            if (byNumber.length > 1) {
+                const bySet = byNumber.filter(c => setNameLooksLike(c.set && c.set.name, setHint));
+                return bySet[0] || byNumber[0];
+            }
+            const bySetOnly = setHint ? candidates.filter(c => setNameLooksLike(c.set && c.set.name, setHint)) : [];
+            return bySetOnly.length === 1 ? bySetOnly[0] : null;
+        }
+
+        // Tries candidateNames in priority order, and within each name skips blank values rather
+        // than stopping there - e.g. TCGplayer exports often have an empty "Total Quantity" column
+        // alongside a populated "Add to Quantity" one, and the latter should still be used.
+        function pickColumn(row, candidateNames) {
+            for (const c of candidateNames) {
+                for (const key of Object.keys(row)) {
+                    if (key.toLowerCase().trim() === c && row[key]) return row[key];
+                }
+            }
+            return '';
+        }
+
+        async function importFromCsvText(text) {
+            const rows = rowsToObjects(parseCsv(text));
+            if (rows.length === 0) {
+                setStatus(importStatus, 'No rows found in that file.', true);
+                return;
+            }
+
+            setStatus(importStatus, `Importing ${rows.length} card${rows.length === 1 ? '' : 's'}...`, false);
+
+            const matched = [];
+            const unmatched = [];
+
+            for (const row of rows) {
+                const name = pickColumn(row, ['product name', 'name', 'card name']);
+                if (!name) { unmatched.push(row); continue; }
+                const numberHint = pickColumn(row, ['number', 'card number', '#']);
+                const setHint = pickColumn(row, ['set name', 'set']);
+                const quantity = parseInt(pickColumn(row, ['total quantity', 'add to quantity', 'quantity', 'qty']), 10) || 1;
+                // TCGdex is missing artwork and/or pricing for some obscure/promo prints; the CSV's
+                // own photo and market price (e.g. from TCGplayer) fill those gaps when TCGdex has none.
+                const photoUrl = pickColumn(row, ['photo url', 'image url', 'image']);
+                const csvPriceRaw = parseFloat(pickColumn(row, ['tcg market price', 'market price', 'price']));
+                const csvPrice = isNaN(csvPriceRaw) ? null : csvPriceRaw;
+
+                try {
+                    const card = await findBestCardMatch(name, numberHint, setHint);
+                    if (card) {
+                        matched.push({ card, quantity, photoUrl, csvPrice });
+                    } else {
+                        unmatched.push(row);
+                    }
+                } catch (err) {
+                    unmatched.push(row);
+                }
+            }
+
+            matched.forEach(({ card, quantity, photoUrl }) => {
+                for (let i = 0; i < quantity; i++) addCardToCollection(card, null, photoUrl);
+            });
+
+            let csvPriceFallbacks = 0;
+            if (matched.length > 0) {
+                await fetchPricesFor(matched.map(m => m.card.id));
+                matched.forEach(({ card, csvPrice }) => {
+                    const cached = priceCache[card.id];
+                    const hasRealPrice = cached && typeof cached.value === 'number';
+                    if (!hasRealPrice && csvPrice !== null) {
+                        priceCache[card.id] = { value: csvPrice, currency: 'USD', source: 'CSV (at import time)', fetchedAt: new Date().toISOString() };
+                        csvPriceFallbacks++;
+                    }
+                });
+                if (csvPriceFallbacks > 0) savePriceCache(priceCache);
+                renderCollection();
+                showView('collection');
+            }
+
+            const addedCount = matched.reduce((sum, m) => sum + m.quantity, 0);
+            let msg = `Imported ${addedCount} card${addedCount === 1 ? '' : 's'} from ${rows.length} row${rows.length === 1 ? '' : 's'}.`;
+            if (csvPriceFallbacks > 0) {
+                msg += ` ${csvPriceFallbacks} price${csvPriceFallbacks === 1 ? '' : 's'} used the CSV's own value since TCGdex had none (a snapshot as of when you exported it, not live).`;
+            }
+            if (unmatched.length > 0) {
+                const names = unmatched.map(r => pickColumn(r, ['product name', 'name', 'card name']) || '(unnamed row)').join(', ');
+                msg += ` ${unmatched.length} couldn't be matched confidently: ${names}. Add ${unmatched.length === 1 ? 'it' : 'them'} manually via search.`;
+            }
+            setStatus(importStatus, msg, unmatched.length > 0);
+        }
+
+        // ---- Collection ----
+        const collectionGrid = document.getElementById('collection-grid');
+        const emptyState = document.getElementById('empty-state');
+        const collectionStatus = document.getElementById('collection-status');
+        const totalValueEl = document.getElementById('total-value');
+        const valueSubEl = document.getElementById('value-sub');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const collectionSearchInput = document.getElementById('collection-search-input');
+        const collectionSortSelect = document.getElementById('collection-sort-select');
+
+        collectionSearchInput.addEventListener('input', renderCollection);
+        collectionSortSelect.addEventListener('change', renderCollection);
+
+        // Price isn't stored on the card record by default - it's fetched live from TCGdex every
+        // session and cached only in this browser's priceCache, which is why a fallback price only
+        // ever set there (as the CSV-import fallback used to do) never actually reached the shared
+        // database. instance.fallbackPrice is a real stored field on the record for cards where
+        // TCGdex has nothing at all, so every browser/device sees it, not just the one that set it.
+        // A stored fallbackPrice comes from the CSV's own TCGplayer export - real TCGplayer market
+        // data, just not live. TCGdex's live Cardmarket figure is a EUR price from a different
+        // (much thinner, EU-only) marketplace used only when TCGdex has no TCGplayer data at all -
+        // for a US-specific promo that market can diverge wildly (seen: a card pricing ~$120 on
+        // TCGplayer showing ~$11 via Cardmarket conversion). So live TCGplayer beats everything,
+        // but a stored TCGplayer-sourced fallback outranks a live Cardmarket guess, not the other
+        // way around.
+        function effectivePriceFor(instance) {
+            const cached = priceCache[instance.cardId];
+            if (cached && typeof cached.value === 'number' && cached.source !== 'Cardmarket') return cached;
+            if (typeof instance.fallbackPrice === 'number') return { value: instance.fallbackPrice, currency: 'USD', source: 'CSV' };
+            if (cached && typeof cached.value === 'number') return cached;
+            return null;
+        }
+
+        // Search/sort only affect what's displayed - updateTotalValue always sums the full
+        // `collection`, so the value banner keeps reflecting everything owned, not the filtered view.
+        function getFilteredSortedCollection() {
+            const term = collectionSearchInput.value.trim().toLowerCase();
+            const filtered = term
+                ? collection.filter(instance =>
+                    (instance.name || '').toLowerCase().includes(term) ||
+                    (instance.set || '').toLowerCase().includes(term))
+                : collection.slice();
+
+            const sortMode = collectionSortSelect.value;
+            if (sortMode === 'price-desc' || sortMode === 'price-asc') {
+                const missing = sortMode === 'price-desc' ? -Infinity : Infinity;
+                const priceOf = (instance) => {
+                    const p = effectivePriceFor(instance);
+                    return p && typeof p.value === 'number' ? p.value : missing;
+                };
+                filtered.sort((a, b) => sortMode === 'price-desc' ? priceOf(b) - priceOf(a) : priceOf(a) - priceOf(b));
+            } else if (sortMode === 'added-desc' || sortMode === 'added-asc') {
+                const addedOf = (instance) => new Date(instance.addedAt || 0).getTime();
+                filtered.sort((a, b) => sortMode === 'added-desc' ? addedOf(b) - addedOf(a) : addedOf(a) - addedOf(b));
+            } else {
+                filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                if (sortMode === 'name-desc') filtered.reverse();
+            }
+            return filtered;
+        }
+
+        function renderCollection() {
+            const filtered = getFilteredSortedCollection();
+            if (collection.length === 0) {
+                collectionGrid.innerHTML = '';
+                emptyState.style.display = 'block';
+                emptyState.textContent = "No cards yet — search above and add Sebastian's cards to get started.";
+            } else if (filtered.length === 0) {
+                collectionGrid.innerHTML = '';
+                emptyState.style.display = 'block';
+                emptyState.textContent = 'No cards match your search.';
+            } else {
+                emptyState.style.display = 'none';
+                collectionGrid.innerHTML = filtered.map(instance => {
+                    const effectivePrice = effectivePriceFor(instance);
+                    const priceHtml = effectivePrice
+                        ? `<div class="price">${formatPrice(effectivePrice)}</div>`
+                        : `<div class="price unavailable">Price unavailable</div>`;
+                    // Falls back to a derived TCGplayer photo for older entries stored before this
+                    // existed, the same way a newly-added card would get one baked in today.
+                    const priceCacheEntry = priceCache[instance.cardId];
+                    const img = instance.image || (priceCacheEntry && priceCacheEntry.fallbackImage) || '';
+                    return `
+                        <div class="poke-card">
+                            ${cardImageHtml(img, instance.name)}
+                            <div class="name">${escapeHtml(instance.name)}</div>
+                            <div class="meta">${escapeHtml(instance.set)} &middot; #${escapeHtml(instance.number)}</div>
+                            ${priceHtml}
+                            <button class="action-btn remove-btn" data-instance-id="${escapeHtml(instance.instanceId)}">Remove</button>
+                        </div>
+                    `;
+                }).join('');
+
+                collectionGrid.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-instance-id');
+                        if (!confirm('Remove this card from the collection?')) return;
+                        window.firestoreDb.removeCard(id).catch(() => {
+                            setStatus(importStatus, "Couldn't remove that card - check your connection and try again.", true);
+                        });
+                    });
+                });
+            }
+
+            updateTotalValue();
+        }
+
+        function updateTotalValue() {
+            let total = 0;
+            let missing = 0;
+            collection.forEach(instance => {
+                const effectivePrice = effectivePriceFor(instance);
+                if (effectivePrice) {
+                    total += effectivePrice.value;
+                } else {
+                    missing++;
+                }
+            });
+            totalValueEl.textContent = formatCurrency(total);
+            const cardWord = collection.length === 1 ? 'card' : 'cards';
+            let sub = `${collection.length} ${cardWord}`;
+            if (missing > 0) sub += ` · ${missing} missing price data`;
+            valueSubEl.textContent = sub;
+        }
+
+        async function refreshPrices(showStatus) {
+            if (collection.length === 0) return;
+            refreshBtn.disabled = true;
+            refreshBtn.textContent = 'Refreshing...';
+            if (showStatus) setStatus(collectionStatus, 'Refreshing prices...', false);
+
+            const uniqueIds = [...new Set(collection.map(c => c.cardId))];
+            const { attempted, failed } = await fetchPricesFor(uniqueIds, { force: true });
+            renderCollection();
+
+            refreshBtn.disabled = false;
+            refreshBtn.textContent = 'Refresh Prices';
+
+            if (failed > 0) {
+                setStatus(collectionStatus, `Updated ${attempted - failed} of ${attempted} cards. Some prices couldn't be reached, showing last known values.`, failed === attempted);
+            } else if (showStatus) {
+                setStatus(collectionStatus, `Prices updated ${new Date().toLocaleTimeString()}.`, false);
+            } else {
+                setStatus(collectionStatus, '', false);
+            }
+        }
+
+        refreshBtn.addEventListener('click', () => refreshPrices(true));
+
+        // ---- Dad's Store ----
+        // A separate Firestore collection from `cards` - these are ordinary household items Dad
+        // offers in trade, each just tagged with a diamond price (no balance is tracked anywhere;
+        // the price is only ever a label, not something spent from or added to a running total).
+        let storeItems = [];
+        // Which item's price is currently mid-edit, if any (only meaningful while storeAdminMode
+        // is on). An inline input + Save/Cancel replaces prompt() here, which some browsers/embedded
+        // contexts block or restrict - an on-page control has no such dependency.
+        let editingStoreItemId = null;
+        // Client-side only - like everything else on this site, not a real security boundary, just
+        // a deterrent so kids don't casually change prices. Resets on reload rather than persisting
+        // in localStorage, so entering it is a deliberate act each time, not a one-time unlock.
+        const STORE_ADMIN_PASSWORD = 'pikachu';
+        let storeAdminMode = false;
+        const storeAdminToggle = document.getElementById('store-admin-toggle');
+        const storeAdminStatus = document.getElementById('store-admin-status');
+        const storeAdminPasswordInput = document.getElementById('store-admin-password');
+
+        // The Add Item form is itself admin-only - only Edit Price (see renderStoreItems) and this
+        // form's visibility depend on storeAdminMode, so this is the one other place besides
+        // renderStoreItems that needs to react whenever admin mode is toggled.
+        function updateStoreAdminUI() {
+            storeItemForm.style.display = storeAdminMode ? '' : 'none';
+            storeFormStatus.style.display = storeAdminMode ? '' : 'none';
+            storeAdminPasswordInput.style.display = storeAdminMode ? 'none' : '';
+        }
+
+        storeAdminToggle.addEventListener('click', () => {
+            if (storeAdminMode) {
+                storeAdminMode = false;
+                editingStoreItemId = null;
+                storeAdminToggle.textContent = 'Enter Admin Mode';
+                storeAdminToggle.classList.remove('active');
+                setStatus(storeAdminStatus, '', false);
+                updateStoreAdminUI();
+                renderStoreItems();
+                return;
+            }
+            const input = storeAdminPasswordInput.value;
+            if (!input) {
+                setStatus(storeAdminStatus, 'Enter the admin password first.', true);
+                return;
+            }
+            if (input !== STORE_ADMIN_PASSWORD) {
+                setStatus(storeAdminStatus, 'Incorrect password.', true);
+                storeAdminPasswordInput.value = '';
+                storeAdminPasswordInput.focus();
+                return;
+            }
+            storeAdminMode = true;
+            storeAdminToggle.textContent = 'Exit Admin Mode';
+            storeAdminToggle.classList.add('active');
+            storeAdminPasswordInput.value = '';
+            setStatus(storeAdminStatus, 'Admin mode on — you can now edit diamond prices below.', false);
+            updateStoreAdminUI();
+            renderStoreItems();
+        });
+
+        storeAdminPasswordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                storeAdminToggle.click();
+            }
+        });
+
+        const storeItemForm = document.getElementById('store-item-form');
+        const storeItemName = document.getElementById('store-item-name');
+        const storeItemImage = document.getElementById('store-item-image');
+        const storeItemDescription = document.getElementById('store-item-description');
+        const storeItemDiamonds = document.getElementById('store-item-diamonds');
+        const storeFormStatus = document.getElementById('store-form-status');
+        updateStoreAdminUI(); // hide the Add Item form until admin mode is entered
+        const storeStatus = document.getElementById('store-status');
+        const storeGrid = document.getElementById('store-grid');
+        const storeEmptyState = document.getElementById('store-empty-state');
+        const storeSearchInput = document.getElementById('store-search-input');
+        const storeSortSelect = document.getElementById('store-sort-select');
+
+        storeSearchInput.addEventListener('input', renderStoreItems);
+        storeSortSelect.addEventListener('change', renderStoreItems);
+
+        // Mirrors getFilteredSortedCollection's approach: search and sort only affect what's
+        // displayed, filtering/sorting entirely client-side since every item is already loaded.
+        function getFilteredSortedStoreItems() {
+            const term = storeSearchInput.value.trim().toLowerCase();
+            const filtered = term
+                ? storeItems.filter(item =>
+                    (item.name || '').toLowerCase().includes(term) ||
+                    (item.description || '').toLowerCase().includes(term))
+                : storeItems.slice();
+
+            const sortMode = storeSortSelect.value;
+            if (sortMode === 'diamonds-desc' || sortMode === 'diamonds-asc') {
+                filtered.sort((a, b) => sortMode === 'diamonds-desc' ? b.diamonds - a.diamonds : a.diamonds - b.diamonds);
+            } else if (sortMode === 'added-desc' || sortMode === 'added-asc') {
+                const addedOf = (item) => new Date(item.addedAt || 0).getTime();
+                filtered.sort((a, b) => sortMode === 'added-desc' ? addedOf(b) - addedOf(a) : addedOf(a) - addedOf(b));
+            } else {
+                filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                if (sortMode === 'name-desc') filtered.reverse();
+            }
+            return filtered;
+        }
+
+        function renderStoreItems() {
+            const filtered = getFilteredSortedStoreItems();
+            if (storeItems.length === 0) {
+                storeGrid.innerHTML = '';
+                storeEmptyState.style.display = 'block';
+                storeEmptyState.textContent = 'No items in the store yet — add one above.';
+                return;
+            }
+            if (filtered.length === 0) {
+                storeGrid.innerHTML = '';
+                storeEmptyState.style.display = 'block';
+                storeEmptyState.textContent = 'No items match your search.';
+                return;
+            }
+            storeEmptyState.style.display = 'none';
+            storeGrid.innerHTML = filtered.map(item => {
+                const isEditing = storeAdminMode && editingStoreItemId === item.itemId;
+                const priceHtml = isEditing
+                    ? `<input type="number" class="price-edit-input" value="${escapeHtml(String(item.diamonds))}" min="1" step="1">`
+                    : `<div class="price">${item.diamonds} diamond${item.diamonds === 1 ? '' : 's'}</div>`;
+                const actionsHtml = isEditing
+                    ? `<button class="action-btn save-price-btn" data-item-id="${escapeHtml(item.itemId)}">Save</button>
+                       <button class="action-btn cancel-edit-btn" data-item-id="${escapeHtml(item.itemId)}">Cancel</button>`
+                    : `${storeAdminMode ? `<button class="action-btn edit-btn" data-item-id="${escapeHtml(item.itemId)}">Edit Price</button>` : ''}
+                       <button class="action-btn remove-btn" data-item-id="${escapeHtml(item.itemId)}">Remove</button>`;
+                return `
+                    <div class="poke-card">
+                        ${cardImageHtml(item.image, item.name)}
+                        <div class="name">${escapeHtml(item.name)}</div>
+                        ${item.description ? `<div class="meta">${escapeHtml(item.description)}</div>` : ''}
+                        ${priceHtml}
+                        <div class="card-actions">${actionsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+
+            storeGrid.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.getAttribute('data-item-id');
+                    if (!confirm('Remove this item from the store?')) return;
+                    window.firestoreDb.removeStoreItem(id).catch(() => {
+                        setStatus(storeStatus, "Couldn't remove that item - check your connection and try again.", true);
+                    });
+                });
+            });
+
+            storeGrid.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    editingStoreItemId = btn.getAttribute('data-item-id');
+                    renderStoreItems();
+                });
+            });
+
+            storeGrid.querySelectorAll('.cancel-edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    editingStoreItemId = null;
+                    renderStoreItems();
+                });
+            });
+
+            function saveEditedPrice(btn) {
+                const id = btn.getAttribute('data-item-id');
+                const input = btn.closest('.poke-card').querySelector('.price-edit-input');
+                const diamonds = parseInt(input.value, 10);
+                if (!Number.isFinite(diamonds) || diamonds <= 0) {
+                    setStatus(storeStatus, 'Enter a whole number of diamonds greater than 0.', true);
+                    return;
+                }
+                window.firestoreDb.updateStoreItemPrice(id, diamonds).catch(() => {
+                    setStatus(storeStatus, "Couldn't update that price - check your connection and try again.", true);
+                });
+                editingStoreItemId = null;
+                renderStoreItems();
+            }
+
+            storeGrid.querySelectorAll('.save-price-btn').forEach(btn => {
+                btn.addEventListener('click', () => saveEditedPrice(btn));
+            });
+
+            storeGrid.querySelectorAll('.price-edit-input').forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEditedPrice(input.closest('.poke-card').querySelector('.save-price-btn'));
+                    }
+                });
+            });
+        }
+
+        storeItemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = storeItemName.value.trim();
+            const diamonds = parseInt(storeItemDiamonds.value, 10);
+            if (!name) {
+                setStatus(storeFormStatus, 'Enter an item name.', true);
+                return;
+            }
+            if (!Number.isFinite(diamonds) || diamonds <= 0) {
+                setStatus(storeFormStatus, 'Enter a diamond price greater than 0.', true);
+                return;
+            }
+            const item = {
+                itemId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                name,
+                description: storeItemDescription.value.trim(),
+                image: storeItemImage.value.trim(),
+                diamonds,
+                addedAt: new Date().toISOString()
+            };
+            window.firestoreDb.addStoreItem(item).catch(() => {
+                setStatus(storeFormStatus, "Couldn't save that item - check your connection and try again.", true);
+            });
+            storeItemForm.reset();
+            setStatus(storeFormStatus, `Added "${name}" to the store.`, false);
+        });
+
+        window.firestoreDb.watchStoreItems(
+            (items) => {
+                storeItems = items;
+                renderStoreItems();
+            },
+            (err) => {
+                setStatus(storeStatus, "Couldn't reach the database. Check your connection and try again.", true);
+            }
+        );
+
+        // ---- View switching ----
+        const tabAdd = document.getElementById('tab-add');
+        const tabCollection = document.getElementById('tab-collection');
+        const tabStore = document.getElementById('tab-store');
+        const addView = document.getElementById('add-view');
+        const collectionView = document.getElementById('collection-view');
+        const storeView = document.getElementById('store-view');
+
+        function showView(view) {
+            addView.style.display = view === 'add' ? '' : 'none';
+            collectionView.style.display = view === 'collection' ? '' : 'none';
+            storeView.style.display = view === 'store' ? '' : 'none';
+            tabAdd.classList.toggle('active', view === 'add');
+            tabCollection.classList.toggle('active', view === 'collection');
+            tabStore.classList.toggle('active', view === 'store');
+        }
+
+        tabAdd.addEventListener('click', () => showView('add'));
+        tabCollection.addEventListener('click', () => showView('collection'));
+        tabStore.addEventListener('click', () => showView('store'));
+
+        // ---- Card image lightbox ----
+        // Delegated to the document rather than re-bound per render, since both card grids
+        // rebuild their innerHTML on every search/collection update.
+        const imageModal = document.getElementById('image-modal');
+        const imageModalImg = document.getElementById('image-modal-img');
+        const imageModalClose = document.getElementById('image-modal-close');
+
+        function openImageModal(src, alt) {
+            imageModalImg.src = src;
+            imageModalImg.alt = alt;
+            imageModal.classList.add('open');
+        }
+
+        function closeImageModal() {
+            imageModal.classList.remove('open');
+            imageModalImg.src = '';
+        }
+
+        imageModal.addEventListener('click', closeImageModal);
+        imageModalClose.addEventListener('click', (e) => { e.stopPropagation(); closeImageModal(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeImageModal();
+        });
+        document.addEventListener('click', (e) => {
+            const img = e.target.closest('.card-grid img');
+            if (img) openImageModal(img.dataset.large || img.src, img.alt);
+        });
+
+        // Initial render/view happen inside the watchCollection callback above, once Firestore's
+        // first snapshot arrives (there's nothing to show before that resolves).
+    </script>
+</body>
+</html>

@@ -43,26 +43,6 @@
             font-size: 1.8rem;
         }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            -webkit-appearance: none;
-        }
-        
         button {
             background-color: #6e8efb;
             color: white;
@@ -145,7 +125,7 @@
             font-size: 14px;
         }
         
-        .login-section, .character-profile {
+        .character-profile {
             display: none;
         }
         
@@ -269,17 +249,6 @@
             </div>
         </div>
         
-        <!-- Login Section (After Character Selection) -->
-        <div class="section login-section" id="login-section">
-            <h1 id="login-title">Enter Password for Warrior</h1>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter password for this character">
-            </div>
-            <button id="login-btn">Access Character</button>
-            <button class="back-button" id="back-to-selection">Back to Character Selection</button>
-        </div>
-        
         <!-- Elle Profile -->
         <div class="character-profile" id="profile-warrior">
             <h1>Elle's Profile</h1>
@@ -344,6 +313,7 @@
                 </div>
             </div>
             <div class="profile-actions">
+                <button onclick="window.location.href='pokemon.html'">View Pokémon Collection</button>
                 <button class="back-button" id="logout-btn-mage">Back to Character Selection</button>
             </div>
         </div>
@@ -352,72 +322,33 @@
     <script>
         // DOM elements
         const characterSelection = document.getElementById('character-selection');
-        const loginSection = document.getElementById('login-section');
         const warriorProfile = document.getElementById('profile-warrior');
         const mageProfile = document.getElementById('profile-mage');
-        const loginBtn = document.getElementById('login-btn');
         const character1 = document.getElementById('character1');
         const character2 = document.getElementById('character2');
-        const backToSelection = document.getElementById('back-to-selection');
         const logoutBtn = document.getElementById('logout-btn');
         const logoutBtnMage = document.getElementById('logout-btn-mage');
-        const loginTitle = document.getElementById('login-title');
-        
-        // Character passwords
-        const passwords = {
-            elle: "elle@gmail.com",
-            sebastian: "sebastian@gmail.com"
-        };
-        
-        let selectedCharacter = null;
-        
-        // Character selection
+
+        // Character selection - straight to the profile, no password gate
         character1.addEventListener('click', function() {
             characterSelection.style.display = 'none';
-            loginSection.style.display = 'block';
-            loginTitle.textContent = "Enter Password for Elle";
-            selectedCharacter = "elle";
+            warriorProfile.style.display = 'block';
         });
-        
+
         character2.addEventListener('click', function() {
             characterSelection.style.display = 'none';
-            loginSection.style.display = 'block';
-            loginTitle.textContent = "Enter Password for Sebastian";
-            selectedCharacter = "sebastian";
+            mageProfile.style.display = 'block';
         });
-        
-        // Login functionality
-        loginBtn.addEventListener('click', function() {
-            const password = document.getElementById('password').value;
-            
-            if (selectedCharacter === "elle" && password === passwords.elle) {
-                loginSection.style.display = 'none';
-                warriorProfile.style.display = 'block';
-            } else if (selectedCharacter === "sebastian" && password === passwords.sebastian) {
-                loginSection.style.display = 'none';
-                mageProfile.style.display = 'block';
-            } else {
-                alert('Invalid password. Please try again.');
-            }
-        });
-        
-        // Back to selection
-        backToSelection.addEventListener('click', function() {
-            loginSection.style.display = 'none';
-            characterSelection.style.display = 'block';
-        });
-        
+
         // Back to selection from profiles
         logoutBtn.addEventListener('click', function() {
             warriorProfile.style.display = 'none';
             characterSelection.style.display = 'block';
-            document.getElementById('password').value = '';
         });
-        
+
         logoutBtnMage.addEventListener('click', function() {
             mageProfile.style.display = 'none';
             characterSelection.style.display = 'block';
-            document.getElementById('password').value = '';
         });
     </script>
 </body>
