@@ -313,11 +313,24 @@
             h1 {
                 font-size: 1.5rem;
             }
-            
+
             .profile-image {
                 width: 150px;
                 height: 150px;
                 margin-bottom: 20px;
+            }
+        }
+
+        /* Below ~700px the .container is nearly full-width, so a fixed top-right corner
+           overlaps it. Drop it into normal flow, stacked above the card, instead. */
+        @media screen and (max-width: 700px) {
+            body {
+                flex-direction: column;
+            }
+
+            .mom-mode-corner {
+                position: static;
+                margin: 16px 0 0;
             }
         }
         
