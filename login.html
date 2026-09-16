@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 95%;
+            max-width: 380px;
+            margin: 15px 0;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+        }
+
+        p {
+            color: #666;
+            font-size: 14px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            -webkit-appearance: none;
+        }
+
+        button {
+            background-color: #6e8efb;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s;
+            -webkit-appearance: none;
+            touch-action: manipulation;
+        }
+
+        button:hover {
+            background-color: #5a7ad9;
+        }
+
+        .error-message {
+            color: #c0392b;
+            font-size: 13px;
+            min-height: 18px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome</h1>
+        <p>Enter the password to continue.</p>
+        <form id="login-form">
+            <input type="password" id="password-input" placeholder="Password" autofocus autocomplete="current-password">
+            <button type="submit">Enter</button>
+        </form>
+        <div class="error-message" id="error-message"></div>
+    </div>
+
+    <script>
+        // Hash of the site password, so it doesn't sit in plain text in the page source.
+        // This still isn't a real security boundary (it's a static site - anyone can read
+        // this script and brute-force the hash offline), just a deterrent against a casual
+        // glance at "view source".
+        const PASSWORD_HASH = '083a301369cd711e9803f7d90d342a3778f9cb864ab22992b49fccddc3b9256c';
+
+        const form = document.getElementById('login-form');
+        const passwordInput = document.getElementById('password-input');
+        const errorMessage = document.getElementById('error-message');
+
+        async function sha256Hex(text) {
+            const data = new TextEncoder().encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function redirectTarget() {
+            const params = new URLSearchParams(location.search);
+            return params.get('redirect') || 'index.html';
+        }
+
+        // Already logged in (e.g. hit the back button) - skip straight past the form.
+        if (localStorage.getItem('siteAuthenticated') === 'true') {
+            location.replace(redirectTarget());
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const hash = await sha256Hex(passwordInput.value);
+            if (hash === PASSWORD_HASH) {
+                localStorage.setItem('siteAuthenticated', 'true');
+                location.href = redirectTarget();
+            } else {
+                errorMessage.textContent = 'Incorrect password.';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
